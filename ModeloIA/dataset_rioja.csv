@@ -1,0 +1,251 @@
+ansiedad_score,ansiedad_nivel,notas,conducta,vive_padres,inasistencias,economia,sueno,extracurriculares,horas_estudio
+10,Moderada,C,mala,Sí,6,crítica,4,Ocasional,6
+25,Extremadamente severa,B,mala,Sí,5,crítica,9,No realiza,1
+3,Normal,B,mala,Sí,4,crítica,7,No realiza,4
+2,Normal,C,regular,Sí,6,crítica,7,No realiza,2
+14,Moderada,AD,buena,Sí,5,crítica,8,No realiza,3
+25,Extremadamente severa,B,buena,Sí,2,regular,4,Frecuente,3
+11,Moderada,C,mala,No,4,regular,9,No realiza,4
+2,Normal,C,regular,No,1,crítica,9,No realiza,6
+3,Normal,AD,regular,Sí,3,crítica,4,No realiza,6
+9,Leve,C,mala,Sí,6,regular,4,No realiza,6
+3,Normal,B,regular,Sí,4,buena,5,No realiza,4
+10,Moderada,B,regular,Sí,6,regular,9,Frecuente,3
+0,Normal,AD,mala,Sí,6,crítica,7,Frecuente,6
+21,Extremadamente severa,B,mala,Sí,5,buena,4,No realiza,2
+18,Severa,C,regular,Sí,2,regular,4,Ocasional,1
+3,Normal,C,mala,Sí,5,crítica,6,Frecuente,1
+23,Extremadamente severa,B,mala,Sí,1,crítica,6,No realiza,2
+15,Severa,B,buena,Sí,1,regular,5,Frecuente,3
+12,Moderada,B,mala,No,1,regular,5,No realiza,1
+24,Extremadamente severa,B,buena,No,2,crítica,7,Ocasional,2
+16,Severa,B,mala,Sí,2,crítica,8,Ocasional,3
+23,Extremadamente severa,B,mala,Sí,3,buena,8,Frecuente,6
+20,Extremadamente severa,C,buena,Sí,5,crítica,9,Ocasional,2
+6,Normal,C,mala,Sí,2,regular,8,Frecuente,3
+17,Severa,B,buena,Sí,4,crítica,9,Frecuente,6
+6,Normal,A,mala,Sí,2,regular,4,Ocasional,6
+24,Extremadamente severa,C,regular,Sí,6,regular,8,Frecuente,5
+25,Extremadamente severa,AD,mala,Sí,6,buena,9,Frecuente,6
+22,Extremadamente severa,A,regular,Sí,2,crítica,5,No realiza,4
+3,Normal,C,mala,Sí,5,regular,4,No realiza,1
+13,Moderada,B,buena,Sí,6,regular,7,No realiza,5
+4,Normal,AD,mala,Sí,6,buena,7,Frecuente,3
+0,Normal,C,regular,Sí,4,regular,6,Ocasional,5
+4,Normal,C,regular,Sí,6,crítica,8,Ocasional,4
+2,Normal,C,mala,Sí,1,crítica,7,Frecuente,2
+13,Moderada,C,mala,No,3,regular,6,Frecuente,1
+4,Normal,B,regular,Sí,2,crítica,8,Ocasional,2
+14,Moderada,B,regular,Sí,6,buena,7,No realiza,3
+20,Extremadamente severa,C,regular,Sí,6,buena,6,Ocasional,5
+16,Severa,C,mala,Sí,4,crítica,5,Ocasional,3
+20,Extremadamente severa,B,mala,Sí,3,crítica,8,No realiza,5
+4,Normal,A,regular,No,1,buena,8,Ocasional,3
+4,Normal,C,regular,No,2,crítica,9,Frecuente,2
+6,Normal,C,mala,Sí,1,regular,5,No realiza,1
+2,Normal,C,mala,Sí,2,crítica,7,No realiza,1
+20,Extremadamente severa,C,mala,No,5,crítica,8,Frecuente,6
+13,Moderada,AD,mala,No,6,buena,9,No realiza,4
+6,Normal,B,buena,No,3,buena,6,No realiza,3
+10,Moderada,A,regular,Sí,2,regular,5,No realiza,2
+1,Normal,B,buena,No,6,regular,6,Ocasional,5
+4,Normal,C,buena,No,5,crítica,4,No realiza,5
+6,Normal,C,mala,Sí,2,regular,4,No realiza,3
+18,Severa,C,regular,No,1,buena,4,Ocasional,1
+21,Extremadamente severa,B,buena,Sí,5,regular,6,Frecuente,2
+7,Normal,C,regular,Sí,6,regular,7,Frecuente,3
+3,Normal,C,regular,Sí,4,regular,5,Frecuente,5
+15,Severa,C,mala,Sí,4,regular,9,Frecuente,1
+16,Severa,A,regular,Sí,5,regular,5,Ocasional,4
+7,Normal,C,regular,Sí,6,crítica,7,No realiza,1
+2,Normal,C,regular,Sí,3,regular,8,No realiza,5
+22,Extremadamente severa,C,mala,Sí,5,buena,5,Frecuente,5
+15,Severa,A,regular,Sí,1,regular,9,Frecuente,6
+15,Severa,C,regular,Sí,2,regular,7,Ocasional,5
+14,Moderada,C,regular,No,4,crítica,5,No realiza,3
+23,Extremadamente severa,A,mala,Sí,5,regular,7,No realiza,4
+25,Extremadamente severa,B,mala,No,1,regular,6,No realiza,5
+4,Normal,B,regular,No,2,crítica,6,Frecuente,5
+9,Leve,B,buena,Sí,2,crítica,7,No realiza,2
+2,Normal,B,mala,Sí,3,crítica,6,Frecuente,3
+7,Normal,C,mala,Sí,6,buena,7,Ocasional,1
+6,Normal,C,mala,Sí,3,regular,6,Ocasional,5
+18,Severa,C,mala,Sí,4,buena,7,Ocasional,5
+19,Severa,B,regular,Sí,3,regular,9,No realiza,2
+18,Severa,B,mala,Sí,4,crítica,4,No realiza,3
+22,Extremadamente severa,A,mala,No,2,regular,5,No realiza,6
+12,Moderada,B,regular,Sí,1,regular,8,Ocasional,5
+18,Severa,C,regular,No,6,crítica,4,Ocasional,6
+21,Extremadamente severa,B,buena,Sí,6,buena,7,No realiza,5
+17,Severa,B,buena,Sí,4,regular,9,Ocasional,4
+10,Moderada,B,regular,Sí,4,regular,9,No realiza,6
+22,Extremadamente severa,A,mala,Sí,4,crítica,4,No realiza,1
+2,Normal,C,regular,Sí,4,regular,5,Ocasional,6
+8,Leve,C,mala,Sí,4,crítica,5,No realiza,2
+11,Moderada,B,regular,Sí,2,crítica,9,No realiza,5
+6,Normal,C,buena,Sí,1,crítica,7,Frecuente,2
+22,Extremadamente severa,C,regular,Sí,4,regular,8,No realiza,1
+3,Normal,C,mala,No,3,crítica,8,No realiza,3
+20,Extremadamente severa,B,buena,Sí,2,buena,8,No realiza,1
+25,Extremadamente severa,C,regular,Sí,5,crítica,9,No realiza,2
+2,Normal,A,regular,Sí,1,crítica,8,Ocasional,3
+13,Moderada,A,regular,Sí,2,regular,9,Ocasional,6
+17,Severa,B,mala,Sí,4,regular,9,No realiza,3
+20,Extremadamente severa,B,mala,Sí,4,regular,4,Ocasional,3
+0,Normal,AD,buena,No,1,crítica,9,No realiza,5
+25,Extremadamente severa,B,regular,Sí,2,crítica,8,No realiza,1
+6,Normal,C,mala,Sí,5,crítica,7,No realiza,5
+2,Normal,C,buena,Sí,1,regular,4,No realiza,6
+20,Extremadamente severa,C,mala,Sí,6,crítica,9,Ocasional,5
+14,Moderada,B,regular,Sí,4,regular,5,No realiza,1
+22,Extremadamente severa,B,buena,No,3,crítica,6,No realiza,5
+20,Extremadamente severa,C,mala,Sí,3,crítica,4,No realiza,3
+14,Moderada,B,mala,Sí,2,regular,4,No realiza,5
+15,Severa,C,mala,No,1,regular,4,Frecuente,6
+24,Extremadamente severa,C,mala,Sí,3,regular,5,No realiza,2
+9,Leve,B,mala,Sí,5,buena,6,Frecuente,3
+8,Leve,AD,regular,Sí,3,buena,6,Ocasional,4
+4,Normal,A,mala,Sí,5,crítica,5,Frecuente,2
+13,Moderada,C,buena,Sí,5,buena,6,Ocasional,4
+17,Severa,C,buena,Sí,3,buena,7,Ocasional,1
+9,Leve,C,buena,No,4,regular,5,No realiza,5
+14,Moderada,A,buena,Sí,3,regular,9,No realiza,4
+4,Normal,C,mala,Sí,5,crítica,8,Ocasional,3
+0,Normal,B,regular,Sí,4,regular,7,No realiza,3
+2,Normal,A,buena,No,2,regular,8,No realiza,1
+9,Leve,C,regular,Sí,5,buena,5,Ocasional,6
+17,Severa,A,regular,Sí,4,regular,9,No realiza,1
+21,Extremadamente severa,A,regular,No,2,regular,8,Ocasional,3
+0,Normal,C,regular,Sí,1,regular,4,No realiza,3
+1,Normal,B,regular,Sí,3,buena,9,No realiza,1
+13,Moderada,C,regular,Sí,1,crítica,5,Ocasional,6
+22,Extremadamente severa,A,mala,Sí,4,regular,7,Frecuente,2
+20,Extremadamente severa,B,mala,Sí,1,regular,6,No realiza,4
+5,Normal,B,regular,Sí,3,crítica,7,Frecuente,2
+6,Normal,C,mala,No,1,crítica,7,No realiza,3
+15,Severa,B,regular,Sí,5,buena,5,Ocasional,2
+9,Leve,B,mala,Sí,6,crítica,7,Ocasional,2
+2,Normal,C,mala,Sí,5,regular,7,Ocasional,3
+25,Extremadamente severa,B,mala,Sí,1,crítica,8,Ocasional,3
+21,Extremadamente severa,C,buena,No,1,regular,6,Ocasional,1
+0,Normal,C,mala,Sí,2,crítica,5,No realiza,3
+22,Extremadamente severa,C,buena,No,1,regular,4,Ocasional,4
+22,Extremadamente severa,B,mala,No,6,crítica,5,Ocasional,5
+20,Extremadamente severa,C,regular,Sí,3,regular,7,Frecuente,1
+4,Normal,A,regular,Sí,6,buena,6,No realiza,5
+18,Severa,C,mala,Sí,3,regular,9,Frecuente,1
+1,Normal,B,regular,Sí,4,crítica,5,Ocasional,4
+18,Severa,C,mala,No,5,regular,9,Ocasional,2
+22,Extremadamente severa,C,mala,Sí,2,regular,9,Ocasional,3
+16,Severa,C,buena,No,2,crítica,4,No realiza,4
+9,Leve,C,mala,Sí,4,regular,8,No realiza,5
+14,Moderada,B,mala,Sí,4,regular,8,No realiza,3
+6,Normal,A,regular,No,4,regular,5,Frecuente,5
+6,Normal,B,buena,Sí,5,crítica,8,No realiza,5
+11,Moderada,C,regular,Sí,1,crítica,8,Ocasional,5
+16,Severa,A,regular,Sí,5,crítica,6,No realiza,3
+4,Normal,C,regular,Sí,5,crítica,9,Frecuente,3
+10,Moderada,C,regular,No,5,regular,6,No realiza,1
+13,Moderada,AD,regular,Sí,2,buena,7,No realiza,4
+7,Normal,C,regular,Sí,4,crítica,8,No realiza,1
+13,Moderada,C,regular,Sí,3,crítica,5,No realiza,5
+11,Moderada,C,regular,Sí,3,crítica,7,Frecuente,4
+23,Extremadamente severa,AD,mala,Sí,6,crítica,5,Frecuente,3
+22,Extremadamente severa,B,mala,No,3,crítica,5,Ocasional,4
+3,Normal,A,regular,Sí,2,buena,6,No realiza,5
+18,Severa,AD,regular,Sí,2,buena,6,No realiza,4
+6,Normal,C,buena,Sí,5,crítica,9,Ocasional,4
+12,Moderada,C,buena,Sí,3,regular,7,No realiza,5
+14,Moderada,C,mala,No,3,crítica,6,No realiza,2
+15,Severa,C,regular,Sí,2,buena,4,Frecuente,2
+8,Leve,B,mala,No,2,crítica,4,Ocasional,5
+21,Extremadamente severa,B,regular,No,2,regular,5,Ocasional,1
+14,Moderada,A,regular,Sí,4,crítica,4,No realiza,1
+4,Normal,C,regular,Sí,6,regular,9,No realiza,4
+15,Severa,AD,mala,Sí,4,regular,7,Frecuente,6
+17,Severa,B,regular,No,1,buena,6,Frecuente,2
+25,Extremadamente severa,B,regular,No,2,regular,4,Ocasional,3
+0,Normal,A,mala,Sí,3,crítica,7,No realiza,1
+25,Extremadamente severa,A,regular,Sí,6,crítica,4,No realiza,1
+9,Leve,A,buena,No,1,buena,6,Frecuente,4
+19,Severa,B,buena,Sí,4,crítica,5,No realiza,4
+10,Moderada,B,regular,Sí,1,crítica,9,No realiza,3
+19,Severa,A,regular,Sí,3,crítica,9,No realiza,2
+11,Moderada,C,regular,Sí,3,regular,9,Ocasional,5
+15,Severa,C,mala,Sí,1,regular,9,Ocasional,4
+9,Leve,B,regular,Sí,4,regular,5,No realiza,2
+11,Moderada,B,regular,No,1,crítica,7,No realiza,5
+13,Moderada,A,buena,Sí,3,crítica,9,Frecuente,2
+16,Severa,B,mala,Sí,3,regular,4,Frecuente,2
+13,Moderada,B,mala,Sí,1,crítica,5,Ocasional,1
+20,Extremadamente severa,C,mala,No,2,regular,7,Frecuente,6
+5,Normal,AD,regular,Sí,1,crítica,9,Ocasional,6
+11,Moderada,B,regular,Sí,6,regular,4,No realiza,5
+7,Normal,C,regular,Sí,3,crítica,7,No realiza,1
+15,Severa,B,regular,Sí,2,crítica,6,No realiza,3
+3,Normal,B,regular,Sí,6,buena,4,Frecuente,3
+18,Severa,A,regular,No,4,crítica,7,Frecuente,3
+19,Severa,B,mala,Sí,5,regular,6,Ocasional,1
+20,Extremadamente severa,B,mala,Sí,5,regular,5,Ocasional,2
+12,Moderada,B,regular,Sí,4,regular,4,No realiza,2
+8,Leve,B,mala,Sí,1,crítica,9,Frecuente,1
+9,Leve,B,buena,Sí,2,regular,9,No realiza,6
+14,Moderada,A,buena,Sí,5,crítica,8,Frecuente,4
+8,Leve,B,regular,No,4,regular,6,Ocasional,1
+20,Extremadamente severa,C,buena,Sí,1,crítica,9,No realiza,5
+2,Normal,B,mala,Sí,3,regular,7,No realiza,5
+8,Leve,C,buena,Sí,5,buena,7,Ocasional,3
+24,Extremadamente severa,B,mala,Sí,2,buena,8,Frecuente,4
+19,Severa,A,mala,Sí,1,crítica,5,No realiza,6
+9,Leve,A,regular,Sí,3,regular,7,No realiza,1
+24,Extremadamente severa,C,buena,Sí,6,regular,6,Frecuente,5
+10,Moderada,B,regular,Sí,3,crítica,9,Ocasional,6
+20,Extremadamente severa,A,mala,Sí,4,crítica,5,Ocasional,3
+17,Severa,C,mala,Sí,6,crítica,7,Frecuente,4
+3,Normal,B,buena,Sí,1,buena,4,Frecuente,5
+0,Normal,C,regular,Sí,3,regular,9,Frecuente,1
+19,Severa,C,regular,Sí,5,regular,7,Frecuente,3
+24,Extremadamente severa,A,mala,Sí,1,regular,8,Ocasional,5
+7,Normal,B,mala,Sí,3,crítica,8,Frecuente,3
+3,Normal,C,mala,Sí,6,crítica,5,No realiza,5
+13,Moderada,C,regular,Sí,6,regular,9,Frecuente,6
+14,Moderada,C,regular,Sí,4,regular,6,No realiza,5
+22,Extremadamente severa,C,buena,No,5,regular,7,No realiza,2
+18,Severa,C,regular,Sí,5,regular,9,No realiza,6
+24,Extremadamente severa,B,buena,Sí,2,regular,4,Ocasional,2
+5,Normal,A,regular,Sí,3,crítica,7,No realiza,6
+9,Leve,A,mala,No,3,crítica,9,No realiza,6
+1,Normal,C,regular,Sí,2,crítica,4,Ocasional,5
+19,Severa,C,regular,Sí,6,crítica,7,No realiza,6
+19,Severa,C,regular,Sí,1,regular,6,Ocasional,6
+14,Moderada,C,regular,Sí,5,crítica,9,Frecuente,2
+0,Normal,AD,mala,Sí,3,regular,7,Frecuente,2
+10,Moderada,B,mala,Sí,6,crítica,9,Frecuente,4
+10,Moderada,B,regular,Sí,4,buena,9,Frecuente,5
+8,Leve,C,buena,Sí,4,regular,6,No realiza,5
+17,Severa,C,mala,Sí,5,crítica,8,Frecuente,6
+2,Normal,C,buena,Sí,6,regular,9,Ocasional,5
+7,Normal,B,regular,Sí,3,crítica,9,Ocasional,6
+4,Normal,C,regular,Sí,6,regular,9,No realiza,4
+17,Severa,C,mala,Sí,4,crítica,9,No realiza,3
+12,Moderada,C,regular,Sí,1,crítica,9,Frecuente,6
+3,Normal,B,regular,Sí,6,crítica,5,No realiza,5
+18,Severa,A,mala,No,1,buena,4,No realiza,1
+16,Severa,A,buena,Sí,3,crítica,6,No realiza,3
+23,Extremadamente severa,C,buena,Sí,2,regular,8,No realiza,6
+6,Normal,A,mala,Sí,1,crítica,5,Ocasional,1
+12,Moderada,C,regular,Sí,5,crítica,5,Ocasional,5
+18,Severa,A,mala,Sí,6,regular,6,Ocasional,1
+4,Normal,C,mala,Sí,2,regular,8,No realiza,6
+24,Extremadamente severa,C,regular,Sí,5,crítica,7,No realiza,5
+2,Normal,C,buena,Sí,5,crítica,5,Ocasional,3
+2,Normal,C,regular,Sí,6,regular,9,Frecuente,4
+24,Extremadamente severa,A,regular,No,3,regular,9,No realiza,1
+22,Extremadamente severa,A,regular,Sí,6,regular,5,No realiza,1
+11,Moderada,A,buena,Sí,4,crítica,7,Ocasional,1
+8,Leve,C,buena,Sí,1,crítica,9,Ocasional,4
+15,Severa,C,regular,No,6,crítica,4,No realiza,2
+14,Moderada,AD,regular,Sí,5,buena,6,No realiza,6
+15,Severa,B,buena,No,5,crítica,8,Ocasional,5
+11,Moderada,A,regular,Sí,1,regular,9,No realiza,2
+16,Severa,C,regular,Sí,6,buena,7,No realiza,4

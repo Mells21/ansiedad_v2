@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isPsychologist() {
+      return signedIn() && exists(/databases/$(database)/documents/psychologists/$(request.auth.uid));
+    }
+
+    match /students/{studentId} {
+      allow read: if isAdmin() || isPsychologist() || (signedIn() && request.auth.uid == studentId);
+      allow update, create: if isAdmin() || (signedIn() && request.auth.uid == studentId);
+
+      match /assessments/{assessmentId} {
+        allow read: if isAdmin() || isPsychologist() || (signedIn() && request.auth.uid == studentId);
+        allow create: if isAdmin() || (signedIn() && request.auth.uid == studentId);
+        allow update, delete: if false;
+      }
+
+      match /diagnoses/{diagnosisId} {
+        allow read: if isAdmin() || isPsychologist() || (signedIn() && request.auth.uid == studentId);
+        allow create, update: if isAdmin() || isPsychologist();
+        allow delete: if false;
+      }
+    }
+
+    match /psychologists/{psychologistId} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == psychologistId);
+      allow update, create: if isAdmin() || (signedIn() && request.auth.uid == psychologistId);
+    }
+
+    match /admins/{adminId} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == adminId);
+      allow update, create: if isAdmin() || (signedIn() && request.auth.uid == adminId);
+    }
+  }
+}
