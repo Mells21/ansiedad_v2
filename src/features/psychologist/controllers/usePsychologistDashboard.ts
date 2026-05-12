@@ -12,9 +12,9 @@ import {
 } from "@/features/psychologist/services/psychologist.service";
 
 const initialForm: PsychologistDiagnosisForm = {
-  notas: 2,
-  conducta: 1,
-  inasistencias: 0,
+  notas: -1,
+  conducta: -1,
+  inasistencias: -1,
   recommendations: "",
 };
 

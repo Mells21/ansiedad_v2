@@ -21,14 +21,15 @@ import {
 
 function buildStudentProfileFromSession(form: StudentIntakeFormValues): StudentProfile {
   const session = getCurrentSession();
+  const livesWithParents = Boolean(form.livesWithParents);
 
   return {
     id: session?.user.firebaseUid ?? session?.user.id ?? form.code,
     code: form.code,
     fullName: form.fullName,
     gradeSection: form.gradeSection,
-    livesWithParents: form.livesWithParents,
-    parentsValue: form.livesWithParents ? 1 : 0,
+    livesWithParents,
+    parentsValue: livesWithParents ? 1 : 0,
     economicSituation: form.economicSituation,
     sleepHours: form.sleepHours,
     sleepValue: mapSleepHours(form.sleepHours),

@@ -59,6 +59,12 @@ export function StudentCaseDetail({
   const diagnosisRecommendations = Array.isArray(latestDiagnosis?.recommendations)
     ? latestDiagnosis.recommendations
     : [];
+  const canDiagnose =
+    Boolean(latestAssessment) &&
+    !latestDiagnosis &&
+    diagnosisForm.notas >= 0 &&
+    diagnosisForm.conducta >= 0 &&
+    diagnosisForm.inasistencias >= 0;
 
   return (
     <PanelCard
@@ -109,6 +115,7 @@ export function StudentCaseDetail({
             value={diagnosisForm.notas}
             onChange={(event) => onDiagnosisFieldChange("notas", Number(event.target.value))}
           >
+            <option value={-1}>Seleccionar...</option>
             <option value={1}>C</option>
             <option value={2}>B</option>
             <option value={3}>A</option>
@@ -121,6 +128,7 @@ export function StudentCaseDetail({
             value={diagnosisForm.conducta}
             onChange={(event) => onDiagnosisFieldChange("conducta", Number(event.target.value))}
           >
+            <option value={-1}>Seleccionar...</option>
             <option value={0}>Mala</option>
             <option value={1}>Regular</option>
             <option value={2}>Buena</option>
@@ -132,6 +140,7 @@ export function StudentCaseDetail({
             value={diagnosisForm.inasistencias}
             onChange={(event) => onDiagnosisFieldChange("inasistencias", Number(event.target.value))}
           >
+            <option value={-1}>Seleccionar...</option>
             <option value={0}>Normal (0 a 2)</option>
             <option value={1}>Regular (3 a 4)</option>
             <option value={2}>Grave (5 o mas)</option>
@@ -140,10 +149,14 @@ export function StudentCaseDetail({
       </div>
 
       <div className="cta-row">
-        <button className="btn" type="button" onClick={onSubmitDiagnosis} disabled={submitting || !latestAssessment}>
+        <button className="btn" type="button" onClick={onSubmitDiagnosis} disabled={submitting || !canDiagnose}>
           {submitting ? "Diagnosticando..." : "Diagnosticar"}
         </button>
       </div>
+
+      {latestAssessment && !latestDiagnosis && !canDiagnose ? (
+        <p className="soft-copy">Selecciona notas, conducta e inasistencias antes de emitir el diagnostico.</p>
+      ) : null}
 
       {latestDiagnosis ? (
         <div className="diagnosis-result-card">

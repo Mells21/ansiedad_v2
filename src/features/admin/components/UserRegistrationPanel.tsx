@@ -3,6 +3,9 @@ import type { ManagedUserFormValues, ManagedUserRole } from "@/features/admin/mo
 import { registerManagedUser } from "@/features/admin/services/user-registration.service";
 import { PanelCard } from "@/shared/components/PanelCard";
 
+const gradeOptions = ["1", "2", "3", "4", "5"] as const;
+const sectionOptions = ["A", "B", "C", "D"] as const;
+
 const initialForm: ManagedUserFormValues = {
   role: "alumno",
   fullName: "",
@@ -128,11 +131,25 @@ export function UserRegistrationPanel() {
           <>
             <label className="field">
               <span>Grado</span>
-              <input value={form.grade} onChange={(event) => updateField("grade", event.target.value)} />
+              <select value={form.grade} onChange={(event) => updateField("grade", event.target.value)}>
+                <option value="">Seleccionar grado...</option>
+                {gradeOptions.map((grade) => (
+                  <option key={grade} value={grade}>
+                    {grade}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="field">
               <span>Seccion</span>
-              <input value={form.section} onChange={(event) => updateField("section", event.target.value)} />
+              <select value={form.section} onChange={(event) => updateField("section", event.target.value)}>
+                <option value="">Seleccionar seccion...</option>
+                {sectionOptions.map((section) => (
+                  <option key={section} value={section}>
+                    {section}
+                  </option>
+                ))}
+              </select>
             </label>
           </>
         ) : null}

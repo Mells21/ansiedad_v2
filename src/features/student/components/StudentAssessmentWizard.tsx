@@ -71,10 +71,13 @@ const contextSteps = [
     key: "sleepHours",
     eyebrow: "Sueno",
     title: "Cuantas horas duermes normalmente entre semana?",
-    type: "range",
-    min: 3,
-    max: 12,
-    unit: "horas por noche",
+    type: "choice",
+    options: [
+      { value: 4, label: "Menos de 5 horas" },
+      { value: 6, label: "Entre 6 y 7 horas" },
+      { value: 8, label: "Entre 8 y 10 horas" },
+      { value: 11, label: "Mas de 10 horas" },
+    ],
   },
   {
     key: "extracurricularFrequency",
@@ -91,10 +94,13 @@ const contextSteps = [
     key: "studyHours",
     eyebrow: "Horas de estudio",
     title: "En promedio, cuantas horas estudias al dia fuera de clase?",
-    type: "range",
-    min: 0,
-    max: 8,
-    unit: "horas al dia",
+    type: "choice",
+    options: [
+      { value: 1, label: "Hasta 1 hora" },
+      { value: 3, label: "Entre 2 y 3 horas" },
+      { value: 5, label: "Entre 4 y 5 horas" },
+      { value: 6, label: "Mas de 5 horas" },
+    ],
   },
 ] as const;
 
@@ -152,6 +158,12 @@ export function StudentAssessmentWizard({
     : isContextStep
       ? ((questions.length + contextIndex + 1) / totalPrompts) * 100
       : 100;
+  const currentContextValue = isContextStep && contextStep ? form[contextStep.key] : null;
+  const canProceed = isQuestionStep
+    ? form.answers[questionIndex] >= 0
+    : isContextStep && contextStep
+      ? currentContextValue !== null && currentContextValue !== -1
+      : false;
 
   return (
     <PanelCard
@@ -231,21 +243,6 @@ export function StudentAssessmentWizard({
                   </button>
                 ))}
               </div>
-            ) : (
-              <input
-                type="range"
-                min={contextStep.min}
-                max={contextStep.max}
-                value={form[contextStep.key]}
-                disabled={loading}
-                onChange={(event) => onFieldChange(contextStep.key, Number(event.target.value))}
-              />
-            )}
-
-            {contextStep.type === "range" ? (
-              <p className="context-range-copy">
-                {form[contextStep.key]} {contextStep.unit}
-              </p>
             ) : null}
           </article>
         </div>
@@ -258,11 +255,11 @@ export function StudentAssessmentWizard({
           Anterior
         </button>
         {currentStep < 18 ? (
-          <button className="btn wizard-btn-primary" type="button" onClick={onNext} disabled={loading}>
+          <button className="btn wizard-btn-primary" type="button" onClick={onNext} disabled={loading || !canProceed}>
             Siguiente
           </button>
         ) : (
-          <button className="btn wizard-btn-primary" type="button" onClick={onSubmit} disabled={loading}>
+          <button className="btn wizard-btn-primary" type="button" onClick={onSubmit} disabled={loading || !canProceed}>
             {loading ? "Guardando..." : "Enviar"}
           </button>
         )}

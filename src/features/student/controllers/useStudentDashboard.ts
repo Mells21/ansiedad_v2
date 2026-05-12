@@ -10,12 +10,12 @@ const initialForm: StudentIntakeFormValues = {
   code: currentSession?.user.code ?? "711",
   fullName: currentSession?.user.names ?? "Maria Garcia",
   gradeSection: [currentSession?.user.grade, currentSession?.user.section].filter(Boolean).join(" ") || "5to A",
-  livesWithParents: true,
-  economicSituation: 1,
-  sleepHours: 7,
-  extracurricularFrequency: 1,
-  studyHours: 2,
-  answers: new Array(14).fill(0),
+  livesWithParents: null,
+  economicSituation: -1,
+  sleepHours: -1,
+  extracurricularFrequency: -1,
+  studyHours: -1,
+  answers: new Array(14).fill(-1),
 };
 
 function addOneMonth(dateValue: string) {
@@ -48,11 +48,6 @@ export function useStudentDashboard() {
           code: storedDetail.student.code,
           fullName: storedDetail.student.fullName,
           gradeSection: storedDetail.student.gradeSection,
-          livesWithParents: storedDetail.student.livesWithParents,
-          economicSituation: storedDetail.student.economicSituation,
-          sleepHours: storedDetail.student.sleepHours,
-          extracurricularFrequency: storedDetail.student.extracurricularFrequency,
-          studyHours: storedDetail.student.studyHours,
         }));
       })
       .catch(() => {

@@ -2,7 +2,7 @@ export interface StudentIntakeFormValues {
   code: string;
   fullName: string;
   gradeSection: string;
-  livesWithParents: boolean;
+  livesWithParents: boolean | null;
   economicSituation: number;
   sleepHours: number;
   extracurricularFrequency: number;
