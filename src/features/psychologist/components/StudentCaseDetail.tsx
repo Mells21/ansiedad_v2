@@ -59,9 +59,13 @@ export function StudentCaseDetail({
   const diagnosisRecommendations = Array.isArray(latestDiagnosis?.recommendations)
     ? latestDiagnosis.recommendations
     : [];
+  const diagnosisProbabilities = latestDiagnosis?.probabilities ?? [];
+  const finalResultLabel = latestDiagnosis?.predictedLabel ?? latestAssessment?.preliminaryLabel ?? "--";
+  const finalResultRisk = latestDiagnosis?.riskLevel ?? latestAssessment?.preliminaryRisk ?? "bajo";
+  const isDiagnosed = Boolean(latestDiagnosis);
   const canDiagnose =
     Boolean(latestAssessment) &&
-    !latestDiagnosis &&
+    !isDiagnosed &&
     diagnosisForm.notas >= 0 &&
     diagnosisForm.conducta >= 0 &&
     diagnosisForm.inasistencias >= 0;
@@ -70,15 +74,21 @@ export function StudentCaseDetail({
     <PanelCard
       title="Resultado del test"
       subtitle="Revisa el envio del estudiante, valida el contexto y completa las variables escolares para emitir el diagnostico."
-      action={
-        latestAssessment ? (
-          <StatusBadge tone={getTone(latestAssessment.preliminaryRisk)}>
-            {latestAssessment.preliminaryLabel}
-          </StatusBadge>
-        ) : undefined
-      }
       className="psychologist-detail-card"
     >
+      <div className="soft-panel psychologist-result-hero">
+        <p className="summary-label">Nivel de ansiedad</p>
+        <div className="inline-spread psychologist-result-hero-row">
+          <strong className="summary-value psychologist-result-hero-value">{finalResultLabel}</strong>
+          <StatusBadge tone={getTone(finalResultRisk)}>{finalResultRisk}</StatusBadge>
+        </div>
+        <p className="soft-copy">
+          {latestDiagnosis
+            ? `Diagnostico final emitido el ${new Date(latestDiagnosis.diagnosedAt).toLocaleString("es-PE")}.`
+            : "Este es el resultado preliminar del test hasta que se emita el diagnostico final."}
+        </p>
+      </div>
+
       <div className="psychologist-detail-grid">
         <div className="soft-panel">
           <p className="summary-label">Alumno</p>
@@ -112,6 +122,7 @@ export function StudentCaseDetail({
         <label className="field">
           <span>Notas</span>
           <select
+            disabled={isDiagnosed}
             value={diagnosisForm.notas}
             onChange={(event) => onDiagnosisFieldChange("notas", Number(event.target.value))}
           >
@@ -125,6 +136,7 @@ export function StudentCaseDetail({
         <label className="field">
           <span>Conducta</span>
           <select
+            disabled={isDiagnosed}
             value={diagnosisForm.conducta}
             onChange={(event) => onDiagnosisFieldChange("conducta", Number(event.target.value))}
           >
@@ -137,6 +149,7 @@ export function StudentCaseDetail({
         <label className="field">
           <span>Inasistencias</span>
           <select
+            disabled={isDiagnosed}
             value={diagnosisForm.inasistencias}
             onChange={(event) => onDiagnosisFieldChange("inasistencias", Number(event.target.value))}
           >
@@ -154,22 +167,16 @@ export function StudentCaseDetail({
         </button>
       </div>
 
-      {latestAssessment && !latestDiagnosis && !canDiagnose ? (
+      {isDiagnosed ? (
+        <p className="soft-copy">Este test ya fue diagnosticado. Los campos clinicos quedaron bloqueados.</p>
+      ) : null}
+
+      {latestAssessment && !isDiagnosed && !canDiagnose ? (
         <p className="soft-copy">Selecciona notas, conducta e inasistencias antes de emitir el diagnostico.</p>
       ) : null}
 
-      {latestDiagnosis ? (
+      {isDiagnosed ? (
         <div className="diagnosis-result-card">
-          <div className="inline-spread">
-            <div>
-              <p className="summary-label">Diagnostico final</p>
-              <strong className="summary-value">{latestDiagnosis.predictedLabel}</strong>
-            </div>
-            <StatusBadge tone={getTone(latestDiagnosis.riskLevel)}>{latestDiagnosis.riskLevel}</StatusBadge>
-          </div>
-          <p className="soft-copy">
-            Emitido el {new Date(latestDiagnosis.diagnosedAt).toLocaleString("es-PE")} con las variables escolares ya completadas.
-          </p>
           <label className="field">
             <span>Recomendaciones para el alumno</span>
             <textarea
@@ -195,7 +202,7 @@ export function StudentCaseDetail({
             </div>
           ) : null}
           <div className="probability-grid">
-            {latestDiagnosis.probabilities.map((probability) => (
+            {diagnosisProbabilities.map((probability) => (
               <div className="soft-panel" key={probability.label}>
                 <p className="summary-label">{probability.label}</p>
                 <strong className="summary-value">{(probability.value * 100).toFixed(0)}%</strong>

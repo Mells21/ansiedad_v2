@@ -1122,6 +1122,25 @@
   border-radius: 1rem;
 }
 
+.psychologist-result-hero {
+  padding: 1.25rem 1.3rem;
+  border-color: rgba(29, 92, 99, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(29, 92, 99, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 247, 0.96));
+}
+
+.psychologist-result-hero-row {
+  align-items: flex-end;
+}
+
+.psychologist-result-hero-value {
+  margin-top: 0.25rem;
+  font-size: clamp(2.1rem, 4vw, 3.5rem);
+  line-height: 1;
+  color: var(--color-text-heading);
+}
+
 .psychologist-detail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
