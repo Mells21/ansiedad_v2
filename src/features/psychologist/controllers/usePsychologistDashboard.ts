@@ -31,10 +31,6 @@ export function usePsychologistDashboard() {
   const loadDashboard = async () => {
     const data = await getPsychologistDashboard();
     setDashboard(data);
-
-    if (data.alerts.length > 0 && selectedStudentId === null) {
-      setSelectedStudentId(data.alerts[0].id);
-    }
   };
 
   useEffect(() => {
