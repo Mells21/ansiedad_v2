@@ -3,6 +3,10 @@ import { useMemo } from "react";
 import type { ManagedUserDirectoryEntry } from "@/features/admin/models/managed-user-directory.model";
 import { useAdminOutletContext } from "@/features/admin/views/AdminDashboardView";
 
+function getVisibleDni(entry: ManagedUserDirectoryEntry) {
+  return entry.code || entry.email.split("@")[0] || "Sin DNI";
+}
+
 function formatCreatedAt(value?: string) {
   if (!value) {
     return "Sin fecha";
@@ -62,8 +66,8 @@ function StudentTableRow({ entry, index }: { entry: ManagedUserDirectoryEntry; i
           <strong>{entry.fullName}</strong>
         </div>
       </td>
-      <td>{entry.email || `${entry.code}@gmail.com`}</td>
-      <td>{entry.code}</td>
+      <td>{getVisibleDni(entry)}</td>
+      <td style={{ textTransform: "capitalize" }}>{entry.gender ?? "--"}</td>
       <td>{formatCreatedAt(entry.createdAt)}</td>
     </tr>
   );
@@ -159,8 +163,8 @@ export function AdminStudentsView() {
                 <tr>
                   <th>#</th>
                   <th>Estudiante</th>
-                  <th>Correo</th>
                   <th>DNI</th>
+                  <th>Sexo</th>
                   <th>Registro</th>
                 </tr>
               </thead>
@@ -222,8 +226,8 @@ export function AdminStudentsView() {
                 <tr>
                   <th>#</th>
                   <th>Estudiante</th>
-                  <th>Correo</th>
                   <th>DNI</th>
+                  <th>Sexo</th>
                   <th>Registro</th>
                 </tr>
               </thead>

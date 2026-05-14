@@ -2,6 +2,10 @@ import type { ManagedUserDirectoryEntry } from "@/features/admin/models/managed-
 import { PanelCard } from "@/shared/components/PanelCard";
 import { useAdminOutletContext } from "@/features/admin/views/AdminDashboardView";
 
+function getVisibleDni(entry: ManagedUserDirectoryEntry) {
+  return entry.code || entry.email.split("@")[0] || "Sin DNI";
+}
+
 function formatCreatedAt(value?: string) {
   if (!value) {
     return "Sin fecha";
@@ -37,10 +41,10 @@ function UserDirectorySection({
             <article className="admin-user-row" key={entry.id}>
               <div>
                 <strong>{entry.fullName}</strong>
-                <p>{entry.email || `${entry.code}@gmail.com`}</p>
+                <p>DNI: {getVisibleDni(entry)}</p>
               </div>
               <div className="admin-user-meta">
-                <span>{entry.code}</span>
+                <span>{getVisibleDni(entry)}</span>
                 <span>{formatCreatedAt(entry.createdAt)}</span>
               </div>
             </article>

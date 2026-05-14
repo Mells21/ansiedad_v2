@@ -5,6 +5,7 @@ export interface ManagedUserDirectoryEntry {
   fullName: string;
   email: string;
   code: string;
+  gender?: "masculino" | "femenino" | "otro";
   role: UserRole;
   grade?: string;
   section?: string;

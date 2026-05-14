@@ -17,6 +17,7 @@ export function useAdminDashboard(): AdminOutletContextValue {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<ModelMetrics | null>(null);
   const [metricsError, setMetricsError] = useState<string | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [usersLoading, setUsersLoading] = useState(true);
   const [students, setStudents] = useState<ManagedUserDirectoryEntry[]>([]);
@@ -27,9 +28,25 @@ export function useAdminDashboard(): AdminOutletContextValue {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const session = getCurrentSession();
 
+  const loadMetrics = async () => {
+    setMetricsLoading(true);
+
+    try {
+      const result = await getModelMetrics();
+      setMetrics(result);
+      setMetricsError(null);
+    } catch {
+      setMetrics(null);
+      setMetricsError("No se pudieron cargar los indicadores del modelo.");
+    } finally {
+      setMetricsLoading(false);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
 
+    setMetricsLoading(true);
     getModelMetrics()
       .then((result) => {
         if (!isMounted) {
@@ -45,7 +62,12 @@ export function useAdminDashboard(): AdminOutletContextValue {
         }
 
         setMetrics(null);
-        setMetricsError("No se pudieron cargar las metricas del modelo.");
+        setMetricsError("No se pudieron cargar los indicadores del modelo.");
+      })
+      .finally(() => {
+        if (isMounted) {
+          setMetricsLoading(false);
+        }
       });
 
     return () => {
@@ -180,7 +202,9 @@ export function useAdminDashboard(): AdminOutletContextValue {
     groupedStudents,
     metrics,
     metricsError,
+    metricsLoading,
     psychologists,
+    reloadMetrics: loadMetrics,
     session,
     selectGrade,
     selectSection,

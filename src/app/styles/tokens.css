@@ -41,4 +41,12 @@
   --space-7: 3rem;
   --font-display: "Manrope", "Segoe UI", sans-serif;
   --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+
+  /* Premium Design Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  --grad-primary: linear-gradient(135deg, #1d5c63 0%, #358b95 100%);
+  --grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+  --grad-accent: linear-gradient(135deg, #f1b24a 0%, #f7dfd8 100%);
 }

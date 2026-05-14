@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore/lite";
 import type { ManagedUserFormValues } from "@/features/admin/models/user-registration.model";
 import { firebaseConfig, isFirebaseConfigured } from "@/shared/lib/firebase";
+import { ServiceCache } from "@/shared/lib/cache";
 
 function buildGradeSection(grade: string, section: string) {
   return [grade, section].filter(Boolean).join(" ");
@@ -32,6 +33,7 @@ export async function registerManagedUser(form: ManagedUserFormValues) {
         fullName: form.fullName,
         email: generatedEmail,
         code: form.dni,
+        gender: form.gender,
         grade: form.grade,
         section: form.section,
         gradeSection,
@@ -43,6 +45,7 @@ export async function registerManagedUser(form: ManagedUserFormValues) {
         fullName: form.fullName,
         email: generatedEmail,
         code: form.dni,
+        gender: form.gender,
         role: form.role,
         createdAt: new Date().toISOString(),
       });
@@ -51,10 +54,13 @@ export async function registerManagedUser(form: ManagedUserFormValues) {
         fullName: form.fullName,
         email: generatedEmail,
         code: form.dni,
+        gender: form.gender,
         role: form.role,
         createdAt: new Date().toISOString(),
       });
     }
+
+    ServiceCache.invalidate("managed_users");
 
     return {
       uid: credentials.user.uid,

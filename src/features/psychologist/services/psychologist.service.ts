@@ -13,6 +13,7 @@ import type {
   PsychologistAlert,
   PsychologistDashboardData,
   PsychologistDiagnosisForm,
+  PsychologistHelpAlert,
   PsychologistSectionSnapshot,
 } from "@/features/psychologist/models/psychologist-dashboard.model";
 import { firebaseDb, isFirebaseConfigured } from "@/shared/lib/firebase";
@@ -23,6 +24,14 @@ import {
   recommendationMap,
 } from "@/shared/lib/student-assessment";
 import { predictAnxietyWithRandomForest } from "@/shared/lib/random-forest";
+import { ServiceCache } from "@/shared/lib/cache";
+
+const HELP_ALERTS_CACHE_KEY = "psychologist_help_alerts";
+const HELP_ALERTS_CACHE_TTL = 2 * 60 * 1000;
+const DASHBOARD_CACHE_KEY = "psychologist_dashboard";
+const DASHBOARD_CACHE_TTL = 2 * 60 * 1000;
+const STUDENT_DETAIL_CACHE_PREFIX = "psychologist_student_detail";
+const STUDENT_DETAIL_CACHE_TTL = 5 * 60 * 1000;
 
 function ensureFirebaseReady() {
   if (!isFirebaseConfigured || !firebaseDb) {
@@ -96,6 +105,27 @@ function parseAssessment(assessmentId: string, data: Record<string, unknown>) {
   };
 }
 
+function parseHelpAlert(
+  studentId: string,
+  studentData: Record<string, unknown>,
+  helpRequestId: string,
+  data: Record<string, unknown>,
+): PsychologistHelpAlert {
+  return {
+    id: helpRequestId,
+    studentId,
+    studentName: (studentData.fullName as string | undefined) ?? "Estudiante",
+    gradeSection:
+      (studentData.gradeSection as string | undefined) ?? [studentData.grade, studentData.section].filter(Boolean).join(" "),
+    reason: (data.reason as string | undefined) ?? "Necesito hablar con alguien",
+    urgency: (data.urgency as "bajo" | "medio" | "alto" | undefined) ?? "medio",
+    message: (data.message as string | undefined) ?? "",
+    status: (data.status as "pendiente" | "intervenido" | undefined) ?? "pendiente",
+    submittedAt: (data.submittedAt as string | undefined) ?? new Date().toISOString(),
+    attendedAt: (data.attendedAt as string | undefined) ?? null,
+  };
+}
+
 async function getStudentDiagnoses(studentId: string) {
   ensureFirebaseReady();
   const snapshot = await getDocs(
@@ -151,7 +181,9 @@ async function buildStudentCaseDetail(studentId: string): Promise<StudentCaseDet
     student,
     latestAssessment,
     latestDiagnosis,
+    latestHelpRequest: null,
     history,
+    helpRequests: [],
     recommendations:
       latestDiagnosis?.recommendations.length
         ? [...latestDiagnosis.recommendations]
@@ -162,12 +194,31 @@ async function buildStudentCaseDetail(studentId: string): Promise<StudentCaseDet
   };
 }
 
-async function buildPsychologistAlert(studentId: string): Promise<PsychologistAlert | null> {
-  ensureFirebaseReady();
+function getStudentDetailCacheKey(studentId: string) {
+  return `${STUDENT_DETAIL_CACHE_PREFIX}_${studentId}`;
+}
 
-  const studentSnapshot = await getDoc(doc(firebaseDb!, "students", studentId));
-  if (!studentSnapshot.exists()) {
-    return null;
+function invalidatePsychologistCaches(studentId?: string) {
+  ServiceCache.invalidate(HELP_ALERTS_CACHE_KEY);
+  ServiceCache.invalidate(DASHBOARD_CACHE_KEY);
+  if (studentId) {
+    ServiceCache.invalidate(getStudentDetailCacheKey(studentId));
+  }
+}
+
+async function buildPsychologistAlert(
+  studentId: string,
+  studentData?: Record<string, unknown>,
+): Promise<PsychologistAlert | null> {
+  ensureFirebaseReady();
+  let resolvedStudentData = studentData;
+
+  if (!resolvedStudentData) {
+    const studentSnapshot = await getDoc(doc(firebaseDb!, "students", studentId));
+    if (!studentSnapshot.exists()) {
+      return null;
+    }
+    resolvedStudentData = studentSnapshot.data();
   }
 
   const assessmentSnapshot = await getDocs(
@@ -178,7 +229,6 @@ async function buildPsychologistAlert(studentId: string): Promise<PsychologistAl
     return null;
   }
 
-  const studentData = studentSnapshot.data();
   const assessment = parseAssessment(latestAssessmentDoc.id, latestAssessmentDoc.data());
   const diagnosisSnapshot = await getDoc(doc(firebaseDb!, "students", studentId, "diagnoses", latestAssessmentDoc.id));
   const diagnosis = diagnosisSnapshot.exists() ? parseDiagnosis(diagnosisSnapshot.data(), diagnosisSnapshot.id) : null;
@@ -187,10 +237,10 @@ async function buildPsychologistAlert(studentId: string): Promise<PsychologistAl
 
   return {
     id: studentId,
-    studentName: (studentData.fullName as string | undefined) ?? "Estudiante",
+    studentName: (resolvedStudentData.fullName as string | undefined) ?? "Estudiante",
     gradeSection:
-      (studentData.gradeSection as string | undefined) ??
-      [studentData.grade, studentData.section].filter(Boolean).join(" "),
+      (resolvedStudentData.gradeSection as string | undefined) ??
+      [resolvedStudentData.grade, resolvedStudentData.section].filter(Boolean).join(" "),
     riskLevel,
     latestScore: assessment.normalizedScore,
     status: diagnosis ? "diagnosticado" : "pendiente",
@@ -199,12 +249,66 @@ async function buildPsychologistAlert(studentId: string): Promise<PsychologistAl
   };
 }
 
-export async function getPsychologistDashboard(): Promise<PsychologistDashboardData> {
+export async function getPsychologistHelpAlerts(): Promise<PsychologistHelpAlert[]> {
   ensureFirebaseReady();
+  const cached = ServiceCache.get<PsychologistHelpAlert[]>(HELP_ALERTS_CACHE_KEY, HELP_ALERTS_CACHE_TTL);
+  if (cached) {
+    return cached;
+  }
 
   const studentsSnapshot = await getDocs(collection(firebaseDb!, "students"));
-  const alertResults = await Promise.all(studentsSnapshot.docs.map((studentDoc) => buildPsychologistAlert(studentDoc.id)));
+  const alertGroups = await Promise.all(
+    studentsSnapshot.docs.map(async (studentDoc) => {
+      const helpRequestsSnapshot = await getDocs(
+        query(collection(firebaseDb!, "students", studentDoc.id, "helpRequests"), orderBy("submittedAt", "desc")),
+      );
+
+      return helpRequestsSnapshot.docs.map((helpRequestDoc) =>
+        parseHelpAlert(studentDoc.id, studentDoc.data(), helpRequestDoc.id, helpRequestDoc.data()),
+      );
+    }),
+  );
+
+  const results = alertGroups
+    .flat()
+    .sort((left, right) => new Date(right.submittedAt).getTime() - new Date(left.submittedAt).getTime());
+
+  ServiceCache.set(HELP_ALERTS_CACHE_KEY, results);
+  return results;
+}
+
+export async function markHelpAlertAsIntervened(studentId: string, helpRequestId: string): Promise<void> {
+  ensureFirebaseReady();
+
+  await setDoc(
+    doc(firebaseDb!, "students", studentId, "helpRequests", helpRequestId),
+    {
+      status: "intervenido",
+      attendedAt: new Date().toISOString(),
+    },
+    { merge: true },
+  );
+  invalidatePsychologistCaches(studentId);
+}
+
+export async function getPendingHelpAlertsCount(): Promise<number> {
+  const alerts = await getPsychologistHelpAlerts();
+  return alerts.filter((alert) => alert.status === "pendiente").length;
+}
+
+export async function getPsychologistDashboard(): Promise<PsychologistDashboardData> {
+  ensureFirebaseReady();
+  const cached = ServiceCache.get<PsychologistDashboardData>(DASHBOARD_CACHE_KEY, DASHBOARD_CACHE_TTL);
+  if (cached) {
+    return cached;
+  }
+
+  const studentsSnapshot = await getDocs(collection(firebaseDb!, "students"));
+  const alertResults = await Promise.all(
+    studentsSnapshot.docs.map((studentDoc) => buildPsychologistAlert(studentDoc.id, studentDoc.data())),
+  );
   const alerts = alertResults.filter((item): item is PsychologistAlert => item !== null);
+  const helpAlerts = await getPsychologistHelpAlerts();
   const sectionMap = new Map<string, Array<"bajo" | "moderado" | "alto">>();
 
   alerts.forEach((alert) => {
@@ -225,7 +329,7 @@ export async function getPsychologistDashboard(): Promise<PsychologistDashboardD
       };
     });
 
-  return {
+  const result = {
     stats: {
       highAlerts: alerts.filter((item) => item.riskLevel === "alto").length,
       moderateAlerts: alerts.filter((item) => item.riskLevel === "moderado").length,
@@ -233,6 +337,7 @@ export async function getPsychologistDashboard(): Promise<PsychologistDashboardD
       pendingDiagnosis: alerts.filter((item) => item.status === "pendiente").length,
     },
     alerts: alerts.sort((left, right) => new Date(right.submittedAt).getTime() - new Date(left.submittedAt).getTime()),
+    helpAlerts,
     sections,
     dailyRecommendations: [
       "Revisar primero los tests recientes con riesgo alto o moderado.",
@@ -240,10 +345,21 @@ export async function getPsychologistDashboard(): Promise<PsychologistDashboardD
       "Usar las recomendaciones personalizadas para dejar seguimiento claro al estudiante.",
     ],
   };
+
+  ServiceCache.set(DASHBOARD_CACHE_KEY, result);
+  return result;
 }
 
 export async function getStudentDetail(studentId: string): Promise<StudentCaseDetail> {
-  return buildStudentCaseDetail(studentId);
+  const cacheKey = getStudentDetailCacheKey(studentId);
+  const cached = ServiceCache.get<StudentCaseDetail>(cacheKey, STUDENT_DETAIL_CACHE_TTL);
+  if (cached) {
+    return cached;
+  }
+
+  const detail = await buildStudentCaseDetail(studentId);
+  ServiceCache.set(cacheKey, detail);
+  return detail;
 }
 
 export async function diagnoseStudent(
@@ -290,7 +406,10 @@ export async function diagnoseStudent(
     { merge: true },
   );
 
-  return buildStudentCaseDetail(studentId);
+  invalidatePsychologistCaches(studentId);
+  const updatedDetail = await buildStudentCaseDetail(studentId);
+  ServiceCache.set(getStudentDetailCacheKey(studentId), updatedDetail);
+  return updatedDetail;
 }
 
 export async function saveDiagnosisRecommendations(
@@ -317,5 +436,8 @@ export async function saveDiagnosisRecommendations(
     { merge: true },
   );
 
-  return buildStudentCaseDetail(studentId);
+  invalidatePsychologistCaches(studentId);
+  const updatedDetail = await buildStudentCaseDetail(studentId);
+  ServiceCache.set(getStudentDetailCacheKey(studentId), updatedDetail);
+  return updatedDetail;
 }

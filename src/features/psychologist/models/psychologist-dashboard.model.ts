@@ -9,6 +9,19 @@ export interface PsychologistAlert {
   submittedAt: string;
 }
 
+export interface PsychologistHelpAlert {
+  id: string;
+  studentId: string;
+  studentName: string;
+  gradeSection: string;
+  reason: string;
+  urgency: "bajo" | "medio" | "alto";
+  message: string;
+  status: "pendiente" | "intervenido";
+  submittedAt: string;
+  attendedAt: string | null;
+}
+
 export interface PsychologistSectionSnapshot {
   label: string;
   students: number;
@@ -26,6 +39,7 @@ export interface PsychologistStats {
 export interface PsychologistDashboardData {
   stats: PsychologistStats;
   alerts: PsychologistAlert[];
+  helpAlerts: PsychologistHelpAlert[];
   sections: PsychologistSectionSnapshot[];
   dailyRecommendations: string[];
 }

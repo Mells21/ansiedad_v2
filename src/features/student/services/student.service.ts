@@ -4,6 +4,8 @@ import type {
   StudentAssessment,
   StudentCaseDetail,
   StudentDiagnosis,
+  StudentHelpRequest,
+  StudentHelpRequestFormValues,
   StudentHistoryItem,
   StudentIntakeFormValues,
   StudentProfile,
@@ -45,8 +47,10 @@ function buildDetail(
   student: StudentProfile,
   assessments: StudentAssessment[],
   diagnoses: StudentDiagnosis[] = [],
+  helpRequests: StudentHelpRequest[] = [],
 ): StudentCaseDetail {
   const latestAssessment = assessments[0] ?? null;
+  const latestHelpRequest = helpRequests[0] ?? null;
   const diagnosisByAssessmentId = new Map<string, StudentDiagnosis>();
 
   diagnoses.forEach((diagnosis) => {
@@ -85,7 +89,9 @@ function buildDetail(
     student,
     latestAssessment,
     latestDiagnosis,
+    latestHelpRequest,
     history,
+    helpRequests,
     recommendations,
     status: latestAssessment ? (latestDiagnosis ? "diagnosticado" : "pendiente_diagnostico") : "sin_respuestas",
   };
@@ -169,7 +175,24 @@ export async function getStudentCaseDetailFromSession(): Promise<StudentCaseDeta
     };
   });
 
-  return buildDetail(student, assessments, diagnoses);
+  const helpRequestsSnapshot = await getDocs(
+    query(collection(firebaseDb, "students", session.user.firebaseUid, "helpRequests"), orderBy("submittedAt", "desc")),
+  );
+
+  const helpRequests: StudentHelpRequest[] = helpRequestsSnapshot.docs.map((helpRequestDoc) => {
+    const data = helpRequestDoc.data();
+    return {
+      id: helpRequestDoc.id,
+      reason: (data.reason as string | undefined) ?? "Necesito hablar con alguien",
+      urgency: (data.urgency as "bajo" | "medio" | "alto" | undefined) ?? "medio",
+      message: (data.message as string | undefined) ?? "",
+      status: (data.status as "pendiente" | "intervenido" | undefined) ?? "pendiente",
+      submittedAt: (data.submittedAt as string | undefined) ?? new Date().toISOString(),
+      attendedAt: (data.attendedAt as string | undefined) ?? null,
+    };
+  });
+
+  return buildDetail(student, assessments, diagnoses, helpRequests);
 }
 
 export async function submitStudentIntake(form: StudentIntakeFormValues): Promise<StudentCaseDetail> {
@@ -223,4 +246,44 @@ export async function submitStudentIntake(form: StudentIntakeFormValues): Promis
   }
 
   return httpPost<StudentIntakeFormValues, StudentCaseDetail>("/students/intake", form);
+}
+
+export async function createStudentHelpRequest(form: StudentHelpRequestFormValues): Promise<StudentCaseDetail> {
+  const session = getCurrentSession();
+
+  if (!session?.user.firebaseUid || !isFirebaseConfigured || !firebaseDb) {
+    throw new Error("No se pudo enviar la solicitud de ayuda porque la base de datos no esta disponible.");
+  }
+
+  const now = new Date().toISOString();
+  const studentRef = doc(firebaseDb, "students", session.user.firebaseUid);
+
+  await setDoc(
+    studentRef,
+    {
+      code: session.user.code ?? "",
+      fullName: session.user.names ?? "Estudiante",
+      gradeSection: [session.user.grade, session.user.section].filter(Boolean).join(" "),
+      grade: session.user.grade ?? "",
+      section: session.user.section ?? "",
+      updatedAt: now,
+      createdAt: now,
+    },
+    { merge: true },
+  );
+
+  await addDoc(collection(firebaseDb, "students", session.user.firebaseUid, "helpRequests"), {
+    reason: form.reason,
+    urgency: form.urgency,
+    message: form.message.trim(),
+    status: "pendiente",
+    submittedAt: now,
+  });
+
+  const detail = await getStudentCaseDetailFromSession();
+  if (!detail) {
+    throw new Error("La solicitud se guardo, pero no se pudo refrescar la ficha del estudiante.");
+  }
+
+  return detail;
 }

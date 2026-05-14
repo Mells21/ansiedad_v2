@@ -1,18 +1,43 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { logout } from "@/features/auth/services/auth.service";
-import { getCurrentSession } from "@/features/auth/services/auth.service";
 import { usePsychologistDashboard } from "@/features/psychologist/controllers/usePsychologistDashboard";
 import { AlertQueue } from "@/features/psychologist/components/AlertQueue";
 import { StudentCaseDetail } from "@/features/psychologist/components/StudentCaseDetail";
-import { MetricCard } from "@/shared/components/MetricCard";
-import { PageHeader } from "@/shared/components/PageHeader";
 
 type PsychologistFilter = "all" | "high" | "moderate" | "pending";
 
+// ── KPI Card — igual al de StatsView ─────────────────────────────────────────
+function KpiCard({
+  label, value, sublabel, color, icon, active, onClick,
+}: {
+  label: string;
+  value: string;
+  sublabel?: string;
+  color: string;
+  icon: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <div
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      className={`stats-kpi-card dash-kpi-card${active ? " dash-kpi-card--active" : ""}`}
+      style={{ borderTop: `4px solid ${color}`, outline: active ? `2px solid ${color}` : undefined }}
+      onClick={onClick}
+      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
+    >
+      <div className="stats-kpi-top">
+        <span className="stats-kpi-icon" style={{ background: `${color}18`, color }}>{icon}</span>
+        <p className="stats-kpi-label">{label}</p>
+      </div>
+      <strong className="stats-kpi-value" style={{ color }}>{value}</strong>
+      {sublabel && <p className="stats-kpi-sub">{sublabel}</p>}
+    </div>
+  );
+}
+
+// ── Main View ─────────────────────────────────────────────────────────────────
 export function PsychologistDashboardView() {
-  const navigate = useNavigate();
-  const session = getCurrentSession();
   const {
     dashboard,
     diagnosisForm,
@@ -28,95 +53,87 @@ export function PsychologistDashboardView() {
     submittingDiagnosis,
     updateDiagnosisField,
   } = usePsychologistDashboard();
+
   const [activeFilter, setActiveFilter] = useState<PsychologistFilter>("all");
 
   const stats = dashboard?.stats;
   const filteredAlerts = useMemo(() => {
     const alerts = dashboard?.alerts ?? [];
-
-    if (activeFilter === "high") {
-      return alerts.filter((alert) => alert.riskLevel === "alto");
-    }
-
-    if (activeFilter === "moderate") {
-      return alerts.filter((alert) => alert.riskLevel === "moderado");
-    }
-
-    if (activeFilter === "pending") {
-      return alerts.filter((alert) => alert.status === "pendiente");
-    }
-
+    if (activeFilter === "high")     return alerts.filter((a) => a.riskLevel === "alto");
+    if (activeFilter === "moderate") return alerts.filter((a) => a.riskLevel === "moderado");
+    if (activeFilter === "pending")  return alerts.filter((a) => a.status === "pendiente");
     return alerts;
   }, [activeFilter, dashboard?.alerts]);
 
   const toggleFilter = (filter: PsychologistFilter) => {
-    setActiveFilter((current) => (current === filter ? "all" : filter));
+    setActiveFilter((cur) => (cur === filter ? "all" : filter));
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
+  const filterLabel: Record<PsychologistFilter, string> = {
+    all:      "Todos los casos registrados",
+    high:     "Filtrando: riesgo alto",
+    moderate: "Filtrando: riesgo moderado",
+    pending:  "Filtrando: pendientes de diagnóstico",
   };
 
   return (
-    <section className="page psychologist-page">
-      <header className="admin-header">
-        <div>
-          <p className="admin-kicker">Psicologia</p>
-          <h1 className="admin-title">Panel del psicologo</h1>
-          <p className="admin-subtitle">
-            Visualiza los nuevos tests enviados por estudiantes y abre cada resultado para revisarlo y diagnosticarlo.
-          </p>
-        </div>
-        <div className="admin-header-actions">
-          <div className="admin-session-chip">
-            <strong>{session?.user.names ?? "Psicologo"}</strong>
-            <span>{session?.user.code ?? "Sesion activa"}</span>
-          </div>
-          <button className="btn btn--ghost" type="button" onClick={handleLogout}>
-            Cerrar sesion
-          </button>
-        </div>
-      </header>
+    <div className="stats-shell">
 
-      <PageHeader
-        title="Seguimiento de tests"
-        subtitle="Usa los indicadores para filtrar la tabla y revisar cada caso desde el modal de detalle."
-        badge={stats ? `${stats.pendingDiagnosis} pendientes` : "Sincronizando casos"}
-      />
 
-      <div className="stats-grid">
-        <MetricCard
+      {/* ── KPI ROW ─────────────────────────────────────────────── */}
+      <div className="stats-kpi-grid">
+        <KpiCard
           active={activeFilter === "high"}
-          label="Alertas altas"
+          color="#ef4444"
+          icon="RA"
+          label="Riesgo Alto"
           onClick={() => toggleFilter("high")}
+          sublabel={stats ? `de ${stats.testsThisMonth} tests este mes` : "cargando..."}
           value={stats ? String(stats.highAlerts) : "--"}
-          tone="danger"
         />
-        <MetricCard
+        <KpiCard
           active={activeFilter === "moderate"}
-          label="Riesgo moderado"
+          color="#f59e0b"
+          icon="RM"
+          label="Riesgo Moderado"
           onClick={() => toggleFilter("moderate")}
+          sublabel={stats ? `de ${stats.testsThisMonth} tests este mes` : "cargando..."}
           value={stats ? String(stats.moderateAlerts) : "--"}
-          tone="warning"
         />
-        <MetricCard
+        <KpiCard
           active={activeFilter === "all"}
-          label="Tests recibidos"
+          color="#6366f1"
+          icon="TT"
+          label="Tests Recibidos"
           onClick={() => toggleFilter("all")}
+          sublabel="en el periodo actual"
           value={stats ? String(stats.testsThisMonth) : "--"}
         />
-        <MetricCard
+        <KpiCard
           active={activeFilter === "pending"}
+          color="#10b981"
+          icon="PD"
           label="Pendientes"
           onClick={() => toggleFilter("pending")}
+          sublabel="esperan diagnóstico"
           value={stats ? String(stats.pendingDiagnosis) : "--"}
         />
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
 
-      <div className="psychologist-tests-shell">
+      {/* ── QUEUE PANEL ─────────────────────────────────────────── */}
+      <div className="stats-chart-card dash-queue-card">
+        <div className="stats-chart-header">
+          <div>
+            <h3 className="stats-chart-title">Seguimiento de Casos</h3>
+            <p className="stats-chart-sub">{filterLabel[activeFilter]}</p>
+          </div>
+          <span className="dash-count-pill">
+            {filteredAlerts.length} {filteredAlerts.length === 1 ? "caso" : "casos"}
+          </span>
+        </div>
+
         <AlertQueue
           alerts={filteredAlerts}
           selectedStudentId={selectedStudentId}
@@ -124,21 +141,33 @@ export function PsychologistDashboardView() {
         />
       </div>
 
+      {/* ── DETAIL MODAL ────────────────────────────────────────── */}
       {selectedStudentId ? (
-        <div className="psychologist-modal-backdrop" role="presentation" onClick={closeSelectedDetail}>
+        <div
+          className="psychologist-modal-backdrop"
+          role="presentation"
+          onClick={closeSelectedDetail}
+        >
           <div
             aria-modal="true"
-            className="psychologist-modal"
+            className="psychologist-modal dash-modal-animate"
             role="dialog"
-            onClick={(event) => event.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="psychologist-modal-head">
               <div>
-                <p className="admin-kicker">Resultado del test</p>
-                <h2 className="admin-title psychologist-modal-title">Revision del caso</h2>
+                <p className="stats-eyebrow" style={{ marginBottom: "0.2rem" }}>Resultado del test DASS-21</p>
+                <h2 className="stats-chart-title" style={{ fontSize: "1.4rem" }}>Revisión del caso</h2>
               </div>
-              <button className="btn btn--ghost" type="button" onClick={closeSelectedDetail}>
-                Cerrar
+              <button
+                className="dash-modal-close"
+                type="button"
+                onClick={closeSelectedDetail}
+                aria-label="Cerrar"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
@@ -157,6 +186,6 @@ export function PsychologistDashboardView() {
           </div>
         </div>
       ) : null}
-    </section>
+    </div>
   );
 }

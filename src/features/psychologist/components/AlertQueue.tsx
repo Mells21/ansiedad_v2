@@ -31,46 +31,68 @@ export function AlertQueue({ alerts, selectedStudentId, onSelectStudent }: Alert
 
   return (
     <PanelCard
-      title="Nuevos tests"
-      subtitle="Vista de envios recientes al estilo del modulo de estudiantes del admin."
-      action={<span className="pill">{alerts.length} tests</span>}
+      title="Seguimiento de Casos"
+      subtitle="Visualiza los envios recientes y gestiona cada caso."
+      action={<span className="pill pill--primary">{alerts.length} tests recibidos</span>}
     >
       {sortedAlerts.length === 0 ? (
-        <p className="soft-copy">Todavia no hay tests enviados por estudiantes.</p>
+        <div className="glass-panel" style={{ textAlign: "center", padding: "3rem" }}>
+          <p className="soft-copy">No hay tests registrados para este periodo.</p>
+        </div>
       ) : (
-        <div className="admin-students-table-shell psychologist-tests-table-shell">
-          <table className="admin-students-table psychologist-tests-table">
-            <thead>
-              <tr>
-                <th>Estudiante</th>
-                <th>Grado</th>
-                <th>Test</th>
-                <th>Riesgo</th>
-                <th>Envio</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedAlerts.map((alert) => (
-                <tr
-                  className={selectedStudentId === alert.id ? "psychologist-tests-row psychologist-tests-row--active" : "psychologist-tests-row"}
-                  key={alert.id}
-                  onClick={() => onSelectStudent(alert.id)}
-                >
-                  <td>
-                    <strong>{alert.studentName}</strong>
-                  </td>
-                  <td>{alert.gradeSection}</td>
-                  <td>{alert.latestLabel} ({alert.latestScore})</td>
-                  <td>
-                    <StatusBadge tone={getTone(alert.riskLevel)}>{alert.riskLevel}</StatusBadge>
-                  </td>
-                  <td>{new Date(alert.submittedAt).toLocaleDateString("es-PE")}</td>
-                  <td>{alert.status === "pendiente" ? "Nuevo test" : "Diagnosticado"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="alert-cards-grid">
+          {sortedAlerts.map((alert) => (
+            <div
+              key={alert.id}
+              className={`alert-card alert-card--risk-${alert.riskLevel} ${
+                selectedStudentId === alert.id ? "alert-card--active" : ""
+              }`}
+              onClick={() => onSelectStudent(alert.id)}
+            >
+              <div className="alert-card-header">
+                <div className="alert-card-student">
+                  <strong>{alert.studentName}</strong>
+                  <span>{alert.gradeSection}</span>
+                </div>
+                <StatusBadge tone={getTone(alert.riskLevel)}>{alert.riskLevel}</StatusBadge>
+              </div>
+
+              <div className="alert-card-body">
+                <div className="alert-card-meta">
+                  <label>Test</label>
+                  <span>DASS-21</span>
+                </div>
+                <div className="alert-card-meta">
+                  <label>Resultado</label>
+                  <span>{alert.latestLabel}</span>
+                </div>
+                <div className="alert-card-meta">
+                  <label>Puntaje</label>
+                  <span>{alert.latestScore} pts</span>
+                </div>
+                <div className="alert-card-meta">
+                  <label>Enviado</label>
+                  <span>{new Date(alert.submittedAt).toLocaleDateString("es-PE")}</span>
+                </div>
+              </div>
+
+              <div className="alert-card-footer">
+                <div className="inline-spread" style={{ gap: "0.5rem" }}>
+                  <div
+                    className={`alert-status-dot ${
+                      alert.status === "pendiente" ? "alert-status-dot--pending" : ""
+                    }`}
+                  />
+                  <span className="soft-copy" style={{ fontSize: "0.85rem", fontWeight: 600 }}>
+                    {alert.status === "pendiente" ? "Pendiente de Revision" : "Diagnosticado"}
+                  </span>
+                </div>
+                <button type="button" className="btn btn--ghost btn--sm" style={{ padding: "0.4rem 0.8rem" }}>
+                  Ver detalle
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </PanelCard>

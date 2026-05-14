@@ -23,7 +23,7 @@ export function StudentRecommendations({ detail }: StudentRecommendationsProps) 
     <PanelCard
       title="Recomendaciones"
       subtitle={subtitle}
-      action={<button className="btn btn--secondary">Cuidar mi bienestar</button>}
+      action={<button className="btn btn--secondary">Ver sugerencias</button>}
     >
       <ul className="detail-list">
         {items.map((item) => (

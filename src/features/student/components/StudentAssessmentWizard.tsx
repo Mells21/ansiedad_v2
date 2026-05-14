@@ -8,6 +8,7 @@ interface StudentAssessmentWizardProps {
   error: string | null;
   isLocked?: boolean;
   nextAvailableTestLabel?: string | null;
+  availabilityDetail?: string | null;
   onAnswerChange: (index: number, value: number) => void;
   onFieldChange: <TKey extends keyof StudentIntakeFormValues>(
     field: TKey,
@@ -111,6 +112,7 @@ export function StudentAssessmentWizard({
   error,
   isLocked = false,
   nextAvailableTestLabel = null,
+  availabilityDetail = null,
   onAnswerChange,
   onFieldChange,
   onNext,
@@ -122,15 +124,19 @@ export function StudentAssessmentWizard({
     return (
       <PanelCard
         title="Tu test ya fue enviado"
-        subtitle="Debes esperar 1 mes antes de responder un nuevo test."
+        subtitle={availabilityDetail ?? "Tu acceso al test depende de la programacion configurada por el psicologo."}
         className="student-wizard-card student-wizard-card--compact"
       >
         <div className="student-lock-card">
           <div className="student-lock-icon">!</div>
           <div className="student-lock-copy">
-            <strong>Proximo intento disponible: {nextAvailableTestLabel ?? "en 1 mes"}</strong>
+            <strong>
+              {nextAvailableTestLabel
+                ? `Proximo intento disponible: ${nextAvailableTestLabel}`
+                : "El test no esta disponible en este momento"}
+            </strong>
             <p className="soft-copy">
-              Mientras tanto, revisa tu historial y las recomendaciones que ya quedaron registradas.
+              {availabilityDetail ?? "Mientras tanto, revisa tu historial y las recomendaciones que ya quedaron registradas."}
             </p>
           </div>
         </div>

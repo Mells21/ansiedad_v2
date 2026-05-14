@@ -10,10 +10,28 @@ export interface StudentIntakeFormValues {
   answers: number[];
 }
 
+export type StudentHelpRequestUrgency = "bajo" | "medio" | "alto";
+
+export const studentHelpRequestReasons = [
+  "Ansiedad / Nerviosismo",
+  "Problemas familiares",
+  "Problemas con companeros",
+  "Problemas academicos",
+  "Necesito hablar con alguien",
+  "Otro",
+] as const;
+
+export interface StudentHelpRequestFormValues {
+  reason: string;
+  urgency: StudentHelpRequestUrgency;
+  message: string;
+}
+
 export interface StudentProfile {
   id: string | number;
   code: string;
   fullName: string;
+  gender?: string;
   gradeSection: string;
   livesWithParents: boolean;
   parentsValue: number;
@@ -55,6 +73,16 @@ export interface StudentDiagnosis {
   diagnosedAt: string;
 }
 
+export interface StudentHelpRequest {
+  id: string | number;
+  reason: string;
+  urgency: StudentHelpRequestUrgency;
+  message: string;
+  status: "pendiente" | "intervenido";
+  submittedAt: string;
+  attendedAt?: string | null;
+}
+
 export interface StudentHistoryItem {
   assessmentId: string | number;
   submittedAt: string;
@@ -73,7 +101,9 @@ export interface StudentCaseDetail {
   student: StudentProfile;
   latestAssessment: StudentAssessment | null;
   latestDiagnosis: StudentDiagnosis | null;
+  latestHelpRequest: StudentHelpRequest | null;
   history: StudentHistoryItem[];
+  helpRequests: StudentHelpRequest[];
   recommendations: string[];
   status: "sin_respuestas" | "pendiente_diagnostico" | "diagnosticado";
 }

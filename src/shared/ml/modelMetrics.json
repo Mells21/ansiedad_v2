@@ -1,0 +1,8 @@
+{
+  "accuracy": 0.94,
+  "precision": 0.9508333333333333,
+  "recall": 0.91,
+  "featureCount": 9,
+  "modelVersion": "RF v1.0",
+  "lastTrainedAt": "2026-05-05T10:45:00"
+}

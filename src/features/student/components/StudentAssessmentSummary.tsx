@@ -5,6 +5,7 @@ import { StatusBadge } from "@/shared/components/StatusBadge";
 interface StudentAssessmentSummaryProps {
   detail: StudentCaseDetail | null;
   nextAvailableTestLabel: string | null;
+  availabilityDetail?: string | null;
   submittedNow?: boolean;
 }
 
@@ -23,6 +24,7 @@ function getTone(riskLevel: "bajo" | "moderado" | "alto") {
 export function StudentAssessmentSummary({
   detail,
   nextAvailableTestLabel,
+  availabilityDetail = null,
   submittedNow = false,
 }: StudentAssessmentSummaryProps) {
   const latestAssessment = detail?.latestAssessment;
@@ -69,6 +71,7 @@ export function StudentAssessmentSummary({
           <div className="soft-panel">
             <p className="summary-label">Proximo test disponible</p>
             <strong className="summary-value">{nextAvailableTestLabel ?? "Disponible ahora"}</strong>
+            {availabilityDetail ? <p className="soft-copy">{availabilityDetail}</p> : null}
           </div>
         </div>
       </div>

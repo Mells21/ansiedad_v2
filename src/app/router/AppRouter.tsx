@@ -10,6 +10,9 @@ import { AdminPeopleView } from "@/features/admin/views/AdminPeopleView";
 import { AdminRegisterView } from "@/features/admin/views/AdminRegisterView";
 import { AdminStudentsView } from "@/features/admin/views/AdminStudentsView";
 import { AdminSummaryView } from "@/features/admin/views/AdminSummaryView";
+import { PsychologistStatsView } from "@/features/psychologist/views/PsychologistStatsView";
+import { TestSchedulerView } from "@/features/psychologist/views/TestSchedulerView";
+import { PsychologistAlertsView } from "@/features/psychologist/views/PsychologistAlertsView";
 
 export function AppRouter() {
   return (
@@ -19,6 +22,9 @@ export function AppRouter() {
       <Route element={<DashboardLayout />}>
         <Route element={<ProtectedRoute allow={["psicologo"]} />}>
           <Route path="/psicologo" element={<PsychologistDashboardView />} />
+          <Route path="/psicologo/alertas" element={<PsychologistAlertsView />} />
+          <Route path="/psicologo/estadisticas" element={<PsychologistStatsView />} />
+          <Route path="/psicologo/programacion" element={<TestSchedulerView />} />
         </Route>
 
         <Route element={<ProtectedRoute allow={["alumno"]} />}>

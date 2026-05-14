@@ -7,7 +7,7 @@ interface RecommendationsPanelProps {
 export function RecommendationsPanel({ recommendations }: RecommendationsPanelProps) {
   return (
     <PanelCard
-      title="Recomendaciones del dia"
+      title="Recomendaciones del día"
       subtitle="Acciones sugeridas para sostener el flujo de atencion."
       action={<button className="btn">Seguimiento escolar</button>}
     >

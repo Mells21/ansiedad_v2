@@ -18,7 +18,9 @@ export interface AdminOutletContextValue {
   groupedStudents: GroupedStudentsByGrade[];
   metrics: ModelMetrics | null;
   metricsError: string | null;
+  metricsLoading: boolean;
   psychologists: ManagedUserDirectoryEntry[];
+  reloadMetrics: () => Promise<void>;
   selectedGrade: string | null;
   selectedGradeData: GroupedStudentsByGrade | null;
   selectedSection: string | null;

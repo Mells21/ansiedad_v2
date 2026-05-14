@@ -1,11 +1,12 @@
 import type { ModelMetrics } from "@/features/admin/models/model-metrics.model";
 import type { ManagedUserDirectoryEntry } from "@/features/admin/models/managed-user-directory.model";
+import modelMetricsSnapshot from "@/shared/ml/modelMetrics.json";
 import { collection, getDocs } from "firebase/firestore/lite";
 import { firebaseAuth, firebaseDb, isFirebaseConfigured, waitForFirebaseAuthReady } from "@/shared/lib/firebase";
-import { httpGet } from "@/shared/services/http.service";
+import { ServiceCache } from "@/shared/lib/cache";
 
 export async function getModelMetrics(): Promise<ModelMetrics> {
-  return httpGet<ModelMetrics>("/metrics");
+  return modelMetricsSnapshot as ModelMetrics;
 }
 
 function sortByName(entries: ManagedUserDirectoryEntry[]) {
@@ -13,6 +14,9 @@ function sortByName(entries: ManagedUserDirectoryEntry[]) {
 }
 
 export async function getManagedUsers() {
+  const cached = ServiceCache.get<any>("managed_users");
+  if (cached) return cached;
+
   if (!isFirebaseConfigured || !firebaseDb || !firebaseAuth) {
     throw new Error("Firebase no esta configurado.");
   }
@@ -74,9 +78,12 @@ export async function getManagedUsers() {
     }),
   );
 
-  return {
+  const results = {
     students,
     psychologists,
     admins,
   };
+
+  ServiceCache.set("managed_users", results);
+  return results;
 }

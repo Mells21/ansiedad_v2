@@ -18,6 +18,10 @@ function getTone(riskLevel: "bajo" | "moderado" | "alto") {
   return "success";
 }
 
+function getStatusLabel(status: "diagnosticado" | "pendiente") {
+  return status === "diagnosticado" ? "Revisado por psicologia" : "Pendiente de revision";
+}
+
 export function TestHistoryPanel({ history }: TestHistoryPanelProps) {
   return (
     <PanelCard title="Historial de test" subtitle="Tus envios recientes y si ya fueron revisados por psicologia.">
@@ -33,12 +37,7 @@ export function TestHistoryPanel({ history }: TestHistoryPanelProps) {
                   <strong>{new Date(item.submittedAt).toLocaleDateString("es-PE")}</strong>
                   <StatusBadge tone={getTone(item.preliminaryRisk)}>{item.preliminaryLabel}</StatusBadge>
                 </div>
-                <p className="soft-copy">
-                  Puntaje DASS ansiedad: {item.rawScore} | Escala del modelo: {item.normalizedScore}
-                </p>
-                <p className="soft-copy">
-                  Estado: {item.status === "diagnosticado" ? "Revisado por psicologia" : "Pendiente de revision"}
-                </p>
+                <p className="soft-copy">Estado: {getStatusLabel(item.status)}</p>
               </div>
             </div>
           ))
