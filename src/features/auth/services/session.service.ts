@@ -17,6 +17,7 @@ export interface AppSession {
 }
 
 const SESSION_KEY = "ansiedad_app_session";
+const VALID_ROLES: UserRole[] = ["admin", "psicologo", "alumno"];
 
 export function saveSession(session: AppSession) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
@@ -30,7 +31,14 @@ export function getSession(): AppSession | null {
   }
 
   try {
-    return JSON.parse(raw) as AppSession;
+    const parsed = JSON.parse(raw) as AppSession;
+
+    if (!parsed?.token || !parsed?.user?.id || !VALID_ROLES.includes(parsed.user.role)) {
+      localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+
+    return parsed;
   } catch {
     localStorage.removeItem(SESSION_KEY);
     return null;

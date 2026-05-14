@@ -115,6 +115,16 @@ export function getCurrentSession() {
   return getSession();
 }
 
+export function getHomeRouteForRole(role: UserRole) {
+  if (role === "admin") {
+    return "/admin";
+  }
+  if (role === "psicologo") {
+    return "/psicologo";
+  }
+  return "/alumno";
+}
+
 export async function logout() {
   if (firebaseAuth) {
     await signOut(firebaseAuth).catch(() => undefined);

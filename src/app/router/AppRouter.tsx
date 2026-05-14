@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "@/app/layouts/DashboardLayout";
 import { ProtectedRoute } from "@/app/router/ProtectedRoute";
+import { getCurrentSession, getHomeRouteForRole } from "@/features/auth/services/auth.service";
 import { LoginView } from "@/features/auth/views/LoginView";
 import { PsychologistDashboardView } from "@/features/psychologist/views/PsychologistDashboardView";
 import { StudentDashboardView } from "@/features/student/views/StudentDashboardView";
@@ -15,10 +16,13 @@ import { TestSchedulerView } from "@/features/psychologist/views/TestSchedulerVi
 import { PsychologistAlertsView } from "@/features/psychologist/views/PsychologistAlertsView";
 
 export function AppRouter() {
+  const session = getCurrentSession();
+  const homeRoute = session ? getHomeRouteForRole(session.user.role) : "/login";
+
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<LoginView />} />
+      <Route path="/" element={<Navigate to={homeRoute} replace />} />
+      <Route path="/login" element={session ? <Navigate to={homeRoute} replace /> : <LoginView />} />
       <Route element={<DashboardLayout />}>
         <Route element={<ProtectedRoute allow={["psicologo"]} />}>
           <Route path="/psicologo" element={<PsychologistDashboardView />} />
@@ -43,6 +47,7 @@ export function AppRouter() {
           </Route>
         </Route>
       </Route>
+      <Route path="*" element={<Navigate to={homeRoute} replace />} />
     </Routes>
   );
 }
