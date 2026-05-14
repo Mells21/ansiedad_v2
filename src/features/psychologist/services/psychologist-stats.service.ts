@@ -1,10 +1,11 @@
-import { collection, getDocs, doc, getDoc } from "firebase/firestore/lite";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore/lite";
 import { firebaseDb, isFirebaseConfigured } from "@/shared/lib/firebase";
-import type { StudentProfile, StudentDiagnosis, StudentAssessment } from "@/features/student/models/student-case.model";
+import type { StudentAssessment, StudentDiagnosis } from "@/features/student/models/student-case.model";
 import { ServiceCache } from "@/shared/lib/cache";
 
 export interface StudentStatsEntry {
-  student: StudentProfile;
+  gradeSection: string;
+  gender: string;
   latestDiagnosis: StudentDiagnosis | null;
   latestAssessment: StudentAssessment | null;
 }
@@ -17,32 +18,12 @@ export async function fetchAllStudentStats(): Promise<StudentStatsEntry[]> {
   const db = firebaseDb;
 
   const studentsSnapshot = await getDocs(collection(db, "students"));
-  const stats: StudentStatsEntry[] = [];
-
   const studentPromises = studentsSnapshot.docs.map(async (studentDoc) => {
     const data = studentDoc.data();
     const studentId = studentDoc.id;
-    
-    // Parse student profile
-    const student: StudentProfile = {
-      id: studentId,
-      code: data.code || "",
-      fullName: data.fullName || "Estudiante",
-      gender: data.gender || "otro",
-      gradeSection: data.gradeSection || [data.grade, data.section].filter(Boolean).join(" "),
-      livesWithParents: !!data.livesWithParents,
-      parentsValue: data.livesWithParents ? 1 : 0,
-      economicSituation: data.economicSituation || 1,
-      sleepHours: data.sleepHours || 7,
-      sleepValue: 0, // Not needed for general stats
-      extracurricularFrequency: data.extracurricularFrequency || 1,
-      studyHours: data.studyHours || 2,
-      studyValue: 0,
-      createdAt: data.createdAt || "",
-      updatedAt: data.updatedAt || "",
-    };
+    const gradeSection = (data.gradeSection || [data.grade, data.section].filter(Boolean).join(" ") || "Sin seccion") as string;
+    const gender = (data.gender || "otro") as string;
 
-    // Get latest assessment
     const assessmentsSnapshot = await getDocs(collection(db, "students", studentId, "assessments"));
     const sortedAssessments = assessmentsSnapshot.docs
       .map(d => ({ id: d.id, ...d.data() } as StudentAssessment))
@@ -59,7 +40,7 @@ export async function fetchAllStudentStats(): Promise<StudentStatsEntry[]> {
       }
     }
 
-    return { student, latestAssessment, latestDiagnosis };
+    return { gradeSection, gender, latestAssessment, latestDiagnosis };
   });
 
   const results = await Promise.all(studentPromises);

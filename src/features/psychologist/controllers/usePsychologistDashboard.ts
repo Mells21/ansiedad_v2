@@ -60,6 +60,12 @@ function buildOptimisticDetail(alert: PsychologistAlert): StudentCaseDetail {
   };
 }
 
+function getTimestamp(value: string | null | undefined) {
+  if (!value) return 0;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
 export function usePsychologistDashboard() {
   const [dashboard, setDashboard] = useState<PsychologistDashboardData | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -87,10 +93,15 @@ export function usePsychologistDashboard() {
   useEffect(() => {
     if (selectedStudentId === null) return;
 
-    // 1. Si ya está en caché → mostrar instantáneamente, sin spinner
+    const alertData = dashboard?.alerts.find((a) => a.id === selectedStudentId);
     const cached = detailCache.current.get(selectedStudentId);
+    const cachedSubmittedAt = getTimestamp(cached?.latestAssessment?.submittedAt);
+    const alertSubmittedAt = getTimestamp(alertData?.submittedAt);
+    const hasNewerAlert = alertSubmittedAt > cachedSubmittedAt;
+    const shouldForceFresh = hasNewerAlert || !cached;
+
     if (cached) {
-      setSelectedDetail(cached);
+      setSelectedDetail(hasNewerAlert && alertData ? buildOptimisticDetail(alertData) : cached);
       setDiagnosisForm({
         notas: cached.latestDiagnosis?.notas ?? initialForm.notas,
         conducta: cached.latestDiagnosis?.conducta ?? initialForm.conducta,
@@ -99,20 +110,15 @@ export function usePsychologistDashboard() {
           ? cached.latestDiagnosis!.recommendations.join("\n")
           : "",
       });
-      return;
-    }
-
-    // 2. Prefill optimista: mostrar datos del alert sin spinner
-    const alertData = dashboard?.alerts.find((a) => a.id === selectedStudentId);
-    if (alertData) {
+      setLoadingDetail(false);
+    } else if (alertData) {
       setSelectedDetail(buildOptimisticDetail(alertData));
-      setLoadingDetail(false); // no bloquear el modal
+      setLoadingDetail(false);
     } else {
-      setLoadingDetail(true); // no hay datos previos → spinner normal
+      setLoadingDetail(true);
     }
 
-    // 3. Fetch completo en background (silencioso si ya hay prefill)
-    getStudentDetail(selectedStudentId)
+    getStudentDetail(selectedStudentId, { forceFresh: shouldForceFresh })
       .then((detail) => {
         detailCache.current.set(selectedStudentId, detail);
         setSelectedDetail(detail);
@@ -131,7 +137,7 @@ export function usePsychologistDashboard() {
       .finally(() => {
         setLoadingDetail(false);
       });
-  }, [selectedStudentId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dashboard?.alerts, selectedStudentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateDiagnosisField = <TKey extends keyof PsychologistDiagnosisForm>(
     field: TKey,

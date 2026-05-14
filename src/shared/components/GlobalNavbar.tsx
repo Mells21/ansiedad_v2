@@ -3,6 +3,10 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { getCurrentSession, logout } from "@/features/auth/services/auth.service";
 import { subscribeToSessionChanges, type AppSession } from "@/features/auth/services/session.service";
 import { getPendingHelpAlertsCount } from "@/features/psychologist/services/psychologist.service";
+import {
+  getStudentHelpResponseNotificationCount,
+  getStudentHelpResponsesEventName,
+} from "@/features/student/services/student.service";
 
 export function GlobalNavbar() {
   const navigate = useNavigate();
@@ -10,6 +14,7 @@ export function GlobalNavbar() {
   const [session, setSession] = useState<AppSession | null>(() => getCurrentSession());
   const role = session?.user.role;
   const [pendingHelpAlertsCount, setPendingHelpAlertsCount] = useState(0);
+  const [studentHelpResponseCount, setStudentHelpResponseCount] = useState(0);
 
   useEffect(() => subscribeToSessionChanges(() => {
     setSession(getCurrentSession());
@@ -34,6 +39,27 @@ export function GlobalNavbar() {
     };
   }, [role]);
 
+  useEffect(() => {
+    if (role !== "alumno") {
+      setStudentHelpResponseCount(0);
+      return;
+    }
+
+    const eventName = getStudentHelpResponsesEventName();
+    const reloadNotificationCount = () => {
+      getStudentHelpResponseNotificationCount()
+        .then(setStudentHelpResponseCount)
+        .catch(() => setStudentHelpResponseCount(0));
+    };
+
+    reloadNotificationCount();
+    window.addEventListener(eventName, reloadNotificationCount);
+
+    return () => {
+      window.removeEventListener(eventName, reloadNotificationCount);
+    };
+  }, [role]);
+
   const handleLogout = async () => {
     await logout();
     navigate("/login", { replace: true });
@@ -42,10 +68,13 @@ export function GlobalNavbar() {
   useEffect(() => {
     if (role !== "psicologo") {
       setPendingHelpAlertsCount(0);
-      return;
+    } else {
+      getPendingHelpAlertsCount().then(setPendingHelpAlertsCount).catch(() => setPendingHelpAlertsCount(0));
     }
 
-    getPendingHelpAlertsCount().then(setPendingHelpAlertsCount).catch(() => setPendingHelpAlertsCount(0));
+    if (role === "alumno") {
+      getStudentHelpResponseNotificationCount().then(setStudentHelpResponseCount).catch(() => setStudentHelpResponseCount(0));
+    }
   }, [location.pathname, role]);
 
   const getLinks = () => {
@@ -61,8 +90,8 @@ export function GlobalNavbar() {
       return [
         { to: "/psicologo", label: "Casos", end: true },
         { to: "/psicologo/alertas", label: "Alertas", badge: pendingHelpAlertsCount },
-        { to: "/psicologo/estadisticas", label: "Estadisticas" },
-        { to: "/psicologo/programacion", label: "Programacion" },
+        { to: "/psicologo/estadisticas", label: "Estadísticas" },
+        { to: "/psicologo/programacion", label: "Programación" },
       ];
     }
     if (role === "alumno") {
@@ -70,6 +99,7 @@ export function GlobalNavbar() {
         { to: "/alumno?tab=inicio", label: "Inicio", end: true, matchSearch: "tab=inicio" },
         { to: "/alumno?tab=test", label: "Nuevo Test", matchSearch: "tab=test" },
         { to: "/alumno?tab=historial", label: "Mi Historial", matchSearch: "tab=historial" },
+        { to: "/alumno?tab=ayuda", label: "Ayuda", matchSearch: "tab=ayuda", badge: studentHelpResponseCount },
       ];
     }
     return [];
@@ -112,7 +142,7 @@ export function GlobalNavbar() {
           <div className="navbar-profile">
             <div className="profile-info">
               <strong>{session?.user.names ?? "Usuario"}</strong>
-              <span>{role === "psicologo" ? "Psicologo" : role === "admin" ? "Admin" : "Estudiante"}</span>
+              <span>{role === "psicologo" ? "Psicólogo" : role === "admin" ? "Admin" : "Estudiante"}</span>
             </div>
             <button className="btn btn--ghost navbar-logout" onClick={handleLogout}>
               Salir

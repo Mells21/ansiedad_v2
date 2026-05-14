@@ -20,11 +20,11 @@ interface ResolvedIdentity {
 
 function mapFirebaseAuthError(error: unknown) {
   if (!(error instanceof Error)) {
-    return "No se pudo iniciar sesion.";
+    return "No se pudo iniciar sesión.";
   }
 
   if (error.message.includes("auth/invalid-credential") || error.message.includes("auth/invalid-login-credentials")) {
-    return "DNI o contrasena incorrectos.";
+    return "DNI o contraseña incorrectos.";
   }
 
   if (error.message.includes("auth/invalid-email")) {

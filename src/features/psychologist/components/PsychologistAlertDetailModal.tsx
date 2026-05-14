@@ -3,8 +3,10 @@ import { StatusBadge } from "@/shared/components/StatusBadge";
 
 interface PsychologistAlertDetailModalProps {
   alert: PsychologistHelpAlert;
+  interventionRecommendation: string;
   loading: boolean;
   onClose: () => void;
+  onRecommendationChange: (value: string) => void;
   onIntervene: () => void;
 }
 
@@ -24,8 +26,10 @@ function getUrgencyTone(urgency: PsychologistHelpAlert["urgency"]) {
 
 export function PsychologistAlertDetailModal({
   alert,
+  interventionRecommendation,
   loading,
   onClose,
+  onRecommendationChange,
   onIntervene,
 }: PsychologistAlertDetailModalProps) {
   const submittedDate = new Date(alert.submittedAt);
@@ -76,6 +80,27 @@ export function PsychologistAlertDetailModal({
               {alert.message.trim() || "Sin mensaje adicional"}
             </div>
           </section>
+
+          <section className="psychologist-alert-detail-modal__section">
+            <span className="psychologist-alert-detail-modal__label">Recomendacion para el estudiante</span>
+            <textarea
+              className="cd-textarea"
+              rows={4}
+              placeholder="Escribe una recomendacion breve para que el estudiante pueda verla..."
+              value={interventionRecommendation}
+              onChange={(event) => onRecommendationChange(event.target.value)}
+              disabled={loading || alert.status === "intervenido"}
+            />
+          </section>
+
+          {alert.status === "intervenido" && alert.psychologistRecommendation ? (
+            <section className="psychologist-alert-detail-modal__section">
+              <span className="psychologist-alert-detail-modal__label">Recomendacion registrada</span>
+              <div className="psychologist-alert-detail-modal__message">
+                {alert.psychologistRecommendation}
+              </div>
+            </section>
+          ) : null}
 
           <div className="psychologist-alert-detail-modal__meta">
             <div className="soft-panel">

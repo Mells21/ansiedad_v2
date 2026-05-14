@@ -20,6 +20,7 @@ export interface PsychologistHelpAlert {
   status: "pendiente" | "intervenido";
   submittedAt: string;
   attendedAt: string | null;
+  psychologistRecommendation: string | null;
 }
 
 export interface PsychologistSectionSnapshot {

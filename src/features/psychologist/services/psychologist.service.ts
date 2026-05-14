@@ -123,6 +123,7 @@ function parseHelpAlert(
     status: (data.status as "pendiente" | "intervenido" | undefined) ?? "pendiente",
     submittedAt: (data.submittedAt as string | undefined) ?? new Date().toISOString(),
     attendedAt: (data.attendedAt as string | undefined) ?? null,
+    psychologistRecommendation: (data.psychologistRecommendation as string | undefined) ?? null,
   };
 }
 
@@ -277,7 +278,11 @@ export async function getPsychologistHelpAlerts(): Promise<PsychologistHelpAlert
   return results;
 }
 
-export async function markHelpAlertAsIntervened(studentId: string, helpRequestId: string): Promise<void> {
+export async function markHelpAlertAsIntervened(
+  studentId: string,
+  helpRequestId: string,
+  psychologistRecommendation: string,
+): Promise<void> {
   ensureFirebaseReady();
 
   await setDoc(
@@ -285,6 +290,7 @@ export async function markHelpAlertAsIntervened(studentId: string, helpRequestId
     {
       status: "intervenido",
       attendedAt: new Date().toISOString(),
+      psychologistRecommendation: psychologistRecommendation.trim(),
     },
     { merge: true },
   );
@@ -350,10 +356,10 @@ export async function getPsychologistDashboard(): Promise<PsychologistDashboardD
   return result;
 }
 
-export async function getStudentDetail(studentId: string): Promise<StudentCaseDetail> {
+export async function getStudentDetail(studentId: string, options?: { forceFresh?: boolean }): Promise<StudentCaseDetail> {
   const cacheKey = getStudentDetailCacheKey(studentId);
-  const cached = ServiceCache.get<StudentCaseDetail>(cacheKey, STUDENT_DETAIL_CACHE_TTL);
-  if (cached) {
+  const cached = options?.forceFresh ? null : ServiceCache.get<StudentCaseDetail>(cacheKey, STUDENT_DETAIL_CACHE_TTL);
+  if (cached && !options?.forceFresh) {
     return cached;
   }
 

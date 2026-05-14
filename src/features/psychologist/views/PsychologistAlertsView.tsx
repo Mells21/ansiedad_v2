@@ -55,12 +55,14 @@ export function PsychologistAlertsView() {
     alerts,
     closeAlert,
     error,
+    interventionRecommendation,
     interveneSelectedAlert,
     loading,
     openAlert,
     pendingCount,
     saving,
     selectedAlert,
+    setInterventionRecommendation,
   } = usePsychologistAlerts();
   const [activeFilter, setActiveFilter] = useState<AlertFilter>("all");
   const intervenedCount = alerts.length - pendingCount;
@@ -143,8 +145,10 @@ export function PsychologistAlertsView() {
       {selectedAlert ? (
         <PsychologistAlertDetailModal
           alert={selectedAlert}
+          interventionRecommendation={interventionRecommendation}
           loading={saving}
           onClose={closeAlert}
+          onRecommendationChange={setInterventionRecommendation}
           onIntervene={interveneSelectedAlert}
         />
       ) : null}

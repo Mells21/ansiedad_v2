@@ -21,6 +21,29 @@ import {
   recommendationMap,
 } from "@/shared/lib/student-assessment";
 
+const HELP_RESPONSES_SEEN_KEY_PREFIX = "student_help_responses_seen";
+const STUDENT_HELP_RESPONSES_EVENT = "student-help-responses-updated";
+
+function getHelpResponsesSeenKey(studentId: string) {
+  return `${HELP_RESPONSES_SEEN_KEY_PREFIX}_${studentId}`;
+}
+
+function getHelpResponseTimestamp(helpRequest: StudentHelpRequest) {
+  const source = helpRequest.attendedAt ?? helpRequest.submittedAt;
+  const parsed = new Date(source).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function getLastSeenHelpResponseTimestamp(studentId: string) {
+  const raw = localStorage.getItem(getHelpResponsesSeenKey(studentId));
+  const parsed = raw ? Number(raw) : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function dispatchHelpResponsesUpdated() {
+  window.dispatchEvent(new CustomEvent(STUDENT_HELP_RESPONSES_EVENT));
+}
+
 function buildStudentProfileFromSession(form: StudentIntakeFormValues): StudentProfile {
   const session = getCurrentSession();
   const livesWithParents = Boolean(form.livesWithParents);
@@ -189,6 +212,7 @@ export async function getStudentCaseDetailFromSession(): Promise<StudentCaseDeta
       status: (data.status as "pendiente" | "intervenido" | undefined) ?? "pendiente",
       submittedAt: (data.submittedAt as string | undefined) ?? new Date().toISOString(),
       attendedAt: (data.attendedAt as string | undefined) ?? null,
+      psychologistRecommendation: (data.psychologistRecommendation as string | undefined) ?? null,
     };
   });
 
@@ -286,4 +310,50 @@ export async function createStudentHelpRequest(form: StudentHelpRequestFormValue
   }
 
   return detail;
+}
+
+export function getStudentHelpResponsesEventName() {
+  return STUDENT_HELP_RESPONSES_EVENT;
+}
+
+export function getUnreadHelpResponsesCount(detail: StudentCaseDetail | null, studentId?: string) {
+  if (!detail || !studentId) {
+    return 0;
+  }
+
+  const lastSeenTimestamp = getLastSeenHelpResponseTimestamp(studentId);
+  return detail.helpRequests.filter((helpRequest) => {
+    if (!helpRequest.psychologistRecommendation) {
+      return false;
+    }
+
+    return getHelpResponseTimestamp(helpRequest) > lastSeenTimestamp;
+  }).length;
+}
+
+export function markStudentHelpResponsesSeen(detail: StudentCaseDetail | null, studentId?: string) {
+  if (!detail || !studentId) {
+    return;
+  }
+
+  const latestResponseTimestamp = detail.helpRequests.reduce((maxTimestamp, helpRequest) => {
+    if (!helpRequest.psychologistRecommendation) {
+      return maxTimestamp;
+    }
+
+    return Math.max(maxTimestamp, getHelpResponseTimestamp(helpRequest));
+  }, 0);
+
+  localStorage.setItem(getHelpResponsesSeenKey(studentId), String(latestResponseTimestamp || Date.now()));
+  dispatchHelpResponsesUpdated();
+}
+
+export async function getStudentHelpResponseNotificationCount(): Promise<number> {
+  const session = getCurrentSession();
+  if (!session?.user.firebaseUid) {
+    return 0;
+  }
+
+  const detail = await getStudentCaseDetailFromSession();
+  return getUnreadHelpResponsesCount(detail, session.user.firebaseUid);
 }

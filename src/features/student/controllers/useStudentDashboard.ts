@@ -3,9 +3,16 @@ import { getCurrentSession } from "@/features/auth/services/auth.service";
 import type {
   StudentCaseDetail,
   StudentHelpRequestFormValues,
+  StudentHelpRequest,
   StudentIntakeFormValues,
 } from "@/features/student/models/student-case.model";
-import { getStudentCaseDetailFromSession, createStudentHelpRequest, submitStudentIntake } from "@/features/student/services/student.service";
+import {
+  createStudentHelpRequest,
+  getStudentCaseDetailFromSession,
+  getUnreadHelpResponsesCount,
+  markStudentHelpResponsesSeen,
+  submitStudentIntake,
+} from "@/features/student/services/student.service";
 import { getTestScheduleConfig } from "@/features/student/services/test-config.service";
 import type { TestScheduleConfig } from "@/features/student/models/test-config.model";
 
@@ -72,13 +79,17 @@ export function useStudentDashboard() {
   const [helpRequestLoading, setHelpRequestLoading] = useState(false);
   const [helpRequestError, setHelpRequestError] = useState<string | null>(null);
   const [helpRequestSuccess, setHelpRequestSuccess] = useState<string | null>(null);
+  const [unreadHelpResponsesCount, setUnreadHelpResponsesCount] = useState(0);
   const submitLockRef = useRef(false);
+
+  const studentFirebaseUid = currentSession?.user.firebaseUid;
 
   useEffect(() => {
     Promise.all([getStudentCaseDetailFromSession(), getTestScheduleConfig()])
       .then(([storedDetail, testConfig]) => {
         if (storedDetail) {
           setDetail(storedDetail);
+          setUnreadHelpResponsesCount(getUnreadHelpResponsesCount(storedDetail, studentFirebaseUid));
           setForm((current) => ({
             ...current,
             code: storedDetail.student.code,
@@ -228,6 +239,7 @@ export function useStudentDashboard() {
     try {
       const savedDetail = await submitStudentIntake(form);
       setDetail(savedDetail);
+      setUnreadHelpResponsesCount(getUnreadHelpResponsesCount(savedDetail, studentFirebaseUid));
       setSubmittedNow(true);
       setCurrentStep(LAST_STEP);
       return true;
@@ -273,6 +285,7 @@ export function useStudentDashboard() {
     try {
       const savedDetail = await createStudentHelpRequest(helpRequestForm);
       setDetail(savedDetail);
+      setUnreadHelpResponsesCount(getUnreadHelpResponsesCount(savedDetail, studentFirebaseUid));
       setHelpModalOpen(false);
       setHelpRequestForm(initialHelpRequestForm);
       setHelpRequestSuccess("Tu solicitud fue enviada al psicologo del colegio.");
@@ -287,6 +300,13 @@ export function useStudentDashboard() {
     }
   };
 
+  const markHelpInboxAsSeen = () => {
+    markStudentHelpResponsesSeen(detail, studentFirebaseUid);
+    setUnreadHelpResponsesCount(0);
+  };
+
+  const helpRequests: StudentHelpRequest[] = detail?.helpRequests ?? [];
+
   return {
     currentStep,
     detail,
@@ -297,6 +317,7 @@ export function useStudentDashboard() {
     helpRequestForm,
     helpRequestLoading,
     helpRequestSuccess,
+    helpRequests,
     isTestLocked,
     loading,
     nextStep,
@@ -309,8 +330,10 @@ export function useStudentDashboard() {
     submittedNow,
     submit,
     submitHelpRequest,
+    unreadHelpResponsesCount,
     updateAnswer,
     updateField,
     updateHelpRequestField,
+    markHelpInboxAsSeen,
   };
 }

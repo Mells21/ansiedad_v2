@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "@/app/layouts/DashboardLayout";
 import { ProtectedRoute } from "@/app/router/ProtectedRoute";
-import { getCurrentSession, getHomeRouteForRole } from "@/features/auth/services/auth.service";
-import { subscribeToSessionChanges, type AppSession } from "@/features/auth/services/session.service";
+import { getCurrentSession, getHomeRouteForRole, logout } from "@/features/auth/services/auth.service";
+import {
+  getLastSessionActivity,
+  markSessionActivity,
+  SESSION_ACTIVITY_KEY,
+  SESSION_INACTIVITY_TIMEOUT_MS,
+  subscribeToSessionChanges,
+  type AppSession,
+} from "@/features/auth/services/session.service";
 import { LoginView } from "@/features/auth/views/LoginView";
 import { PsychologistDashboardView } from "@/features/psychologist/views/PsychologistDashboardView";
 import { StudentDashboardView } from "@/features/student/views/StudentDashboardView";
@@ -20,10 +27,92 @@ import { PsychologistAlertsView } from "@/features/psychologist/views/Psychologi
 export function AppRouter() {
   const [session, setSession] = useState<AppSession | null>(() => getCurrentSession());
   const homeRoute = session ? getHomeRouteForRole(session.user.role) : "/login";
+  const inactivityTimerRef = useRef<number | null>(null);
 
   useEffect(() => subscribeToSessionChanges(() => {
     setSession(getCurrentSession());
   }), []);
+
+  useEffect(() => {
+    if (!session) {
+      if (inactivityTimerRef.current !== null) {
+        window.clearTimeout(inactivityTimerRef.current);
+        inactivityTimerRef.current = null;
+      }
+      return;
+    }
+
+    let isSessionClosing = false;
+
+    const clearTimer = () => {
+      if (inactivityTimerRef.current !== null) {
+        window.clearTimeout(inactivityTimerRef.current);
+        inactivityTimerRef.current = null;
+      }
+    };
+
+    const closeInactiveSession = async () => {
+      if (isSessionClosing) return;
+      isSessionClosing = true;
+      clearTimer();
+      await logout();
+    };
+
+    const scheduleAutoLogout = () => {
+      clearTimer();
+      const lastActivity = getLastSessionActivity() || Date.now();
+      const elapsed = Date.now() - lastActivity;
+      const remaining = Math.max(0, SESSION_INACTIVITY_TIMEOUT_MS - elapsed);
+
+      inactivityTimerRef.current = window.setTimeout(() => {
+        void closeInactiveSession();
+      }, remaining);
+    };
+
+    const handleActivity = () => {
+      markSessionActivity();
+      scheduleAutoLogout();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        handleActivity();
+      }
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === SESSION_ACTIVITY_KEY) {
+        scheduleAutoLogout();
+      }
+    };
+
+    const activityEvents: Array<keyof WindowEventMap> = [
+      "mousemove",
+      "mousedown",
+      "keydown",
+      "scroll",
+      "touchstart",
+      "click",
+    ];
+
+    markSessionActivity(true);
+    scheduleAutoLogout();
+
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, handleActivity, { passive: true });
+    });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      clearTimer();
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, handleActivity);
+      });
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [session]);
 
   return (
     <Routes>

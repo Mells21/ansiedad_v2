@@ -8,6 +8,7 @@ import {
 export function usePsychologistAlerts() {
   const [alerts, setAlerts] = useState<PsychologistHelpAlert[]>([]);
   const [selectedAlert, setSelectedAlert] = useState<PsychologistHelpAlert | null>(null);
+  const [interventionRecommendation, setInterventionRecommendation] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export function usePsychologistAlerts() {
 
   const openAlert = (alert: PsychologistHelpAlert) => {
     setSelectedAlert(alert);
+    setInterventionRecommendation(alert.psychologistRecommendation ?? "");
   };
 
   const closeAlert = () => {
@@ -46,6 +48,7 @@ export function usePsychologistAlerts() {
       return;
     }
     setSelectedAlert(null);
+    setInterventionRecommendation("");
   };
 
   const interveneSelectedAlert = async () => {
@@ -57,7 +60,7 @@ export function usePsychologistAlerts() {
     setError(null);
 
     try {
-      await markHelpAlertAsIntervened(selectedAlert.studentId, selectedAlert.id);
+      await markHelpAlertAsIntervened(selectedAlert.studentId, selectedAlert.id, interventionRecommendation);
       await loadAlerts();
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "No se pudo actualizar la alerta.");
@@ -77,5 +80,7 @@ export function usePsychologistAlerts() {
     reloadAlerts: loadAlerts,
     saving,
     selectedAlert,
+    interventionRecommendation,
+    setInterventionRecommendation,
   };
 }
