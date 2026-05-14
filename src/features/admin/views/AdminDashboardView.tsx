@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useOutletContext } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 import { useAdminDashboard } from "@/features/admin/controllers/useAdminDashboard";
 import type { AdminOutletContextValue } from "@/features/admin/models/admin-outlet-context.model";
 

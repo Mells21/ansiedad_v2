@@ -41,6 +41,7 @@ export function UserRegistrationPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<CreatedUserSummary | null>(null);
+  const roleLabel = getRoleLabel(form.role);
   const isSubmitDisabled =
     !form.fullName.trim() ||
     !form.password.trim() ||
@@ -82,7 +83,7 @@ export function UserRegistrationPanel() {
       }
 
       if (!form.fullName.trim() || !form.password.trim() || !form.dni.trim() || !form.gender) {
-        throw new Error("Completa nombre, DNI, contrasena y sexo.");
+        throw new Error("Completa nombre, DNI, contraseña y sexo.");
       }
 
       if (form.role === "alumno" && (!form.grade.trim() || !form.section.trim())) {
@@ -113,95 +114,151 @@ export function UserRegistrationPanel() {
   return (
     <>
       <PanelCard
+        className="admin-register-card"
         title="Registro de usuarios"
-        subtitle="Crea cuentas de alumnos, psicologos y administradores directamente en Firebase Auth y guarda su perfil en Firestore."
-        action={<span className="pill">Demo Firebase</span>}
+        subtitle="Crea accesos nuevos con una captura mas ordenada, clara y adaptable a cualquier pantalla."
       >
-        <div className="student-tabs">
-          <button
-            className={form.role === "alumno" ? "student-tab student-tab--active" : "student-tab"}
-            type="button"
-            onClick={() => handleRoleChange("alumno")}
-          >
-            Registrar alumno
-          </button>
-          <button
-            className={form.role === "psicologo" ? "student-tab student-tab--active" : "student-tab"}
-            type="button"
-            onClick={() => handleRoleChange("psicologo")}
-          >
-            Registrar psicologo
-          </button>
-          <button
-            className={form.role === "admin" ? "student-tab student-tab--active" : "student-tab"}
-            type="button"
-            onClick={() => handleRoleChange("admin")}
-          >
-            Registrar admin
-          </button>
-        </div>
+        <div className="admin-register-panel">
+          <div className="admin-register-tabs" role="tablist" aria-label="Tipo de usuario">
+            <button
+              className={form.role === "alumno" ? "admin-register-tab admin-register-tab--active" : "admin-register-tab"}
+              type="button"
+              onClick={() => handleRoleChange("alumno")}
+            >
+              <span className="admin-register-tab__title">Registrar alumno</span>
+              <span className="admin-register-tab__meta">Incluye grado y seccion</span>
+            </button>
+            <button
+              className={form.role === "psicologo" ? "admin-register-tab admin-register-tab--active" : "admin-register-tab"}
+              type="button"
+              onClick={() => handleRoleChange("psicologo")}
+            >
+              <span className="admin-register-tab__title">Registrar psicologo</span>
+              <span className="admin-register-tab__meta">Acceso de seguimiento clinico</span>
+            </button>
+            <button
+              className={form.role === "admin" ? "admin-register-tab admin-register-tab--active" : "admin-register-tab"}
+              type="button"
+              onClick={() => handleRoleChange("admin")}
+            >
+              <span className="admin-register-tab__title">Registrar admin</span>
+              <span className="admin-register-tab__meta">Permisos de gestion institucional</span>
+            </button>
+          </div>
 
-        <div className="assessment-grid">
-          <label className="field">
-            <span>Nombre completo</span>
-            <input value={form.fullName} onChange={(event) => updateField("fullName", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Contrasena</span>
-            <input
-              type="password"
-              value={form.password}
-              onChange={(event) => updateField("password", event.target.value)}
-            />
-          </label>
-          <label className="field">
-            <span>DNI</span>
-            <input value={form.dni} onChange={(event) => updateField("dni", event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Sexo</span>
-            <select value={form.gender} onChange={(event) => updateField("gender", event.target.value as any)}>
-              <option value="">Seleccionar sexo...</option>
-              <option value="masculino">Masculino</option>
-              <option value="femenino">Femenino</option>
-              <option value="otro">Otro</option>
-            </select>
-          </label>
-          {form.role === "alumno" ? (
-            <>
-              <label className="field">
-                <span>Grado</span>
-                <select value={form.grade} onChange={(event) => updateField("grade", event.target.value)}>
-                  <option value="">Seleccionar grado...</option>
-                  {gradeOptions.map((grade) => (
-                    <option key={grade} value={grade}>
-                      {grade}
-                    </option>
-                  ))}
+          <section className="admin-register-section">
+            <div className="admin-register-section__header">
+              <div>
+                <p className="admin-register-section__eyebrow">Datos personales</p>
+                <h4 className="admin-register-section__title">Informacion basica del usuario</h4>
+              </div>
+              <span className="admin-register-section__chip">{roleLabel}</span>
+            </div>
+
+            <div className="admin-register-grid">
+              <label className="admin-register-field">
+                <span>Nombre completo</span>
+                <input value={form.fullName} onChange={(event) => updateField("fullName", event.target.value)} />
+              </label>
+
+              <label className="admin-register-field">
+                <span>DNI</span>
+                <input
+                  value={form.dni}
+                  inputMode="numeric"
+                  maxLength={8}
+                  placeholder="00000000"
+                  onChange={(event) => updateField("dni", event.target.value)}
+                />
+              </label>
+
+              <label className="admin-register-field">
+                <span>Sexo</span>
+                <select value={form.gender} onChange={(event) => updateField("gender", event.target.value as any)}>
+                  <option value="">Seleccionar sexo...</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                  <option value="otro">Otro</option>
                 </select>
               </label>
-              <label className="field">
-                <span>Seccion</span>
-                <select value={form.section} onChange={(event) => updateField("section", event.target.value)}>
-                  <option value="">Seleccionar seccion...</option>
-                  {sectionOptions.map((section) => (
-                    <option key={section} value={section}>
-                      {section}
-                    </option>
-                  ))}
-                </select>
+            </div>
+          </section>
+
+          <section className="admin-register-section">
+            <div className="admin-register-section__header">
+              <div>
+                <p className="admin-register-section__eyebrow">Datos academicos</p>
+                <h4 className="admin-register-section__title">Contexto institucional</h4>
+              </div>
+            </div>
+
+            {form.role === "alumno" ? (
+              <div className="admin-register-grid admin-register-grid--academic">
+                <label className="admin-register-field">
+                  <span>Grado</span>
+                  <select value={form.grade} onChange={(event) => updateField("grade", event.target.value)}>
+                    <option value="">Seleccionar grado...</option>
+                    {gradeOptions.map((grade) => (
+                      <option key={grade} value={grade}>
+                        {grade}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="admin-register-field">
+                  <span>Seccion</span>
+                  <select value={form.section} onChange={(event) => updateField("section", event.target.value)}>
+                    <option value="">Seleccionar seccion...</option>
+                    {sectionOptions.map((section) => (
+                      <option key={section} value={section}>
+                        {section}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            ) : (
+              <div className="admin-register-empty-state">
+                Este rol no requiere grado ni seccion para completar el alta.
+              </div>
+            )}
+          </section>
+
+          <section className="admin-register-section">
+            <div className="admin-register-section__header">
+              <div>
+                <p className="admin-register-section__eyebrow">Credenciales</p>
+                <h4 className="admin-register-section__title">Acceso inicial al sistema</h4>
+              </div>
+            </div>
+
+            <div className="admin-register-grid admin-register-grid--credentials">
+              <label className="admin-register-field">
+                <span>Contraseña</span>
+                <input
+                  type="password"
+                  placeholder="Define una contraseña segura"
+                  value={form.password}
+                  onChange={(event) => updateField("password", event.target.value)}
+                />
               </label>
-            </>
-          ) : null}
-        </div>
+            </div>
+          </section>
 
-        <div className="cta-row">
-          <button className="btn" type="button" onClick={submit} disabled={isSubmitDisabled}>
-            {loading ? "Registrando..." : "Crear usuario"}
-          </button>
-        </div>
+          <div className="admin-register-actions">
+            <div className="admin-register-actions__copy">
+              <strong>{roleLabel}</strong>
+              <span>Se creara el acceso y el perfil institucional en un solo paso.</span>
+            </div>
 
-        {error ? <p className="form-error">{error}</p> : null}
+            <button className="btn admin-register-submit" type="button" onClick={submit} disabled={isSubmitDisabled}>
+              {loading ? "Registrando..." : "Crear usuario"}
+            </button>
+          </div>
+
+          {error ? <p className="form-error admin-register-error">{error}</p> : null}
+        </div>
       </PanelCard>
 
       {createdUser ? (
