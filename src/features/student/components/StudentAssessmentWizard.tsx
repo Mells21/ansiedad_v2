@@ -1,4 +1,5 @@
 import type { StudentIntakeFormValues } from "@/features/student/models/student-case.model";
+import type { CSSProperties } from "react";
 import { PanelCard } from "@/shared/components/PanelCard";
 
 interface StudentAssessmentWizardProps {
@@ -173,12 +174,7 @@ export function StudentAssessmentWizard({
 
   return (
     <PanelCard
-      title={isQuestionStep ? "Test de Ansiedad" : "Tu contexto"}
-      subtitle={
-        isQuestionStep
-          ? "Responde como te has sentido recientemente."
-          : "Unas pocas preguntas mas para completar tu ficha."
-      }
+      title={isQuestionStep ? "Nuevo test" : "Datos de contexto"}
       action={
         <span className="student-card-tag">
           {isQuestionStep
@@ -188,87 +184,122 @@ export function StudentAssessmentWizard({
       }
       className="student-wizard-card student-wizard-card--compact"
     >
-      <div className="wizard-progress-shell">
-        <div className="wizard-progress-track">
-          <div className="wizard-progress-bar" style={{ width: `${progress}%` }} />
-        </div>
-        {isQuestionStep || isContextStep ? (
-          <div className="inline-spread">
-            <span className="soft-copy">{isQuestionStep ? "Avance del test" : "Avance del contexto"}</span>
-            <span className="wizard-percent">{Math.round(progress)}%</span>
+      <div className="student-assessment-layout">
+        <aside className="student-assessment-rail" aria-label="Avance del test">
+          <div
+            className="student-assessment-meter"
+            style={{ "--meter-progress": `${Math.round(progress)}%` } as CSSProperties}
+          >
+            <strong>{Math.round(progress)}%</strong>
+            <span>avance</span>
           </div>
-        ) : null}
-      </div>
+          <div className="student-assessment-steps">
+            <span className={isQuestionStep ? "student-assessment-step student-assessment-step--active" : "student-assessment-step student-assessment-step--done"}>
+              Test
+            </span>
+            <span className={isContextStep ? "student-assessment-step student-assessment-step--active" : "student-assessment-step"}>
+              Contexto
+            </span>
+          </div>
+        </aside>
 
-      {isQuestionStep ? (
-        <div className="wizard-stage">
-          <article className="question-card question-card--single" key={questions[questionIndex]}>
-            <h4 className="question-title question-title--large">{questions[questionIndex]}</h4>
-            <div className="answer-list">
-              {answerLabels.map((label, value) => (
-                <button
-                  className={
-                    form.answers[questionIndex] === value
-                      ? "choice-row choice-row--active"
-                      : "choice-row"
-                  }
-                  key={label}
-                  type="button"
-                  disabled={loading}
-                  onClick={() => onAnswerChange(questionIndex, value)}
-                >
-                  <span className="choice-radio" />
-                  <span>{label}</span>
-                </button>
-              ))}
+        <div className="student-assessment-workspace">
+          <div className="student-wizard-hero">
+            <div className="student-wizard-hero__main">
+              <span className="student-wizard-hero__eyebrow">{stepLabels[visualStepIndex]}</span>
+              <strong className="student-wizard-hero__title">
+                {isQuestionStep ? questions[questionIndex] : contextStep?.title}
+              </strong>
             </div>
-          </article>
-        </div>
-      ) : null}
+            <div className="student-wizard-hero__meta">
+              <span>{isQuestionStep ? `${questionIndex + 1}/14` : `${contextIndex + 1}/5`}</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+          </div>
 
-      {isContextStep && contextStep ? (
-        <div className="wizard-stage">
-          <article className="question-card question-card--single context-card">
-            <p className="question-index">{contextStep.eyebrow}</p>
-            <h4 className="question-title question-title--large">{contextStep.title}</h4>
-
-            {contextStep.type === "choice" ? (
-              <div className="answer-list">
-                {contextStep.options.map((option) => (
-                  <button
-                    className={
-                      form[contextStep.key] === option.value ? "choice-row choice-row--active" : "choice-row"
-                    }
-                    key={option.label}
-                    type="button"
-                    disabled={loading}
-                    onClick={() => onFieldChange(contextStep.key, option.value)}
-                  >
-                    <span className="choice-radio" />
-                    <span>{option.label}</span>
-                  </button>
-                ))}
+          <div className="wizard-progress-shell">
+            <div className="wizard-progress-track">
+              <div className="wizard-progress-bar" style={{ width: `${progress}%` }} />
+            </div>
+            {isQuestionStep || isContextStep ? (
+              <div className="inline-spread">
+                <span className="soft-copy">{isQuestionStep ? "Avance del test" : "Avance del contexto"}</span>
+                <span className="wizard-percent">{Math.round(progress)}%</span>
               </div>
             ) : null}
-          </article>
+          </div>
+
+          {isQuestionStep ? (
+            <div className="wizard-stage">
+              <article className="question-card question-card--single" key={questions[questionIndex]}>
+                <div className="answer-list">
+                  {answerLabels.map((label, value) => (
+                    <button
+                      className={
+                        form.answers[questionIndex] === value
+                          ? "choice-row choice-row--active"
+                          : "choice-row"
+                      }
+                      key={label}
+                      type="button"
+                      disabled={loading}
+                      onClick={() => onAnswerChange(questionIndex, value)}
+                    >
+                      <span className="choice-radio" />
+                      <span className="choice-index">{value + 1}</span>
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </article>
+            </div>
+          ) : null}
+
+          {isContextStep && contextStep ? (
+            <div className="wizard-stage">
+              <article className="question-card question-card--single context-card">
+                <p className="question-index">{contextStep.eyebrow}</p>
+
+                {contextStep.type === "choice" ? (
+                  <div className="answer-list">
+                    {contextStep.options.map((option, optionIndex) => (
+                      <button
+                        className={
+                          form[contextStep.key] === option.value ? "choice-row choice-row--active" : "choice-row"
+                        }
+                        key={option.label}
+                        type="button"
+                        disabled={loading}
+                        onClick={() => onFieldChange(contextStep.key, option.value)}
+                      >
+                        <span className="choice-radio" />
+                        <span className="choice-index">{optionIndex + 1}</span>
+                        <span>{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            </div>
+          ) : null}
+
+          {error ? <p className="form-error">{error}</p> : null}
+
+          <div className="wizard-actions">
+            <button className="btn btn--ghost wizard-btn-ghost" type="button" onClick={onPrevious} disabled={currentStep === 0 || loading}>
+              Anterior
+            </button>
+            {currentStep < 18 ? (
+              <button className="btn wizard-btn-primary" type="button" onClick={onNext} disabled={loading || !canProceed}>
+                Siguiente
+              </button>
+            ) : (
+              <button className="btn wizard-btn-primary" type="button" onClick={onSubmit} disabled={loading || !canProceed}>
+                {loading ? "Guardando..." : "Enviar"}
+              </button>
+            )}
+          </div>
         </div>
-      ) : null}
-
-      {error ? <p className="form-error">{error}</p> : null}
-
-      <div className="wizard-actions">
-        <button className="btn btn--ghost wizard-btn-ghost" type="button" onClick={onPrevious} disabled={currentStep === 0 || loading}>
-          Anterior
-        </button>
-        {currentStep < 18 ? (
-          <button className="btn wizard-btn-primary" type="button" onClick={onNext} disabled={loading || !canProceed}>
-            Siguiente
-          </button>
-        ) : (
-          <button className="btn wizard-btn-primary" type="button" onClick={onSubmit} disabled={loading || !canProceed}>
-            {loading ? "Guardando..." : "Enviar"}
-          </button>
-        )}
       </div>
     </PanelCard>
   );

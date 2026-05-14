@@ -30,6 +30,21 @@ const initialHelpRequestForm: StudentHelpRequestFormValues = {
   message: "",
 };
 
+function buildEmptyAssessmentForm(identity?: Partial<StudentIntakeFormValues>): StudentIntakeFormValues {
+  return {
+    ...initialForm,
+    code: identity?.code ?? initialForm.code,
+    fullName: identity?.fullName ?? initialForm.fullName,
+    gradeSection: identity?.gradeSection ?? initialForm.gradeSection,
+    answers: new Array(14).fill(-1),
+    livesWithParents: null,
+    economicSituation: -1,
+    sleepHours: -1,
+    extracurricularFrequency: -1,
+    studyHours: -1,
+  };
+}
+
 function addMonths(dateValue: string, months: number) {
   const date = new Date(dateValue);
   const nextDate = new Date(date);
@@ -188,6 +203,19 @@ export function useStudentDashboard() {
     setCurrentStep((step) => Math.max(0, step - 1));
   };
 
+  const resetAssessmentDraft = () => {
+    setForm(
+      buildEmptyAssessmentForm({
+        code: detail?.student.code ?? form.code,
+        fullName: detail?.student.fullName ?? form.fullName,
+        gradeSection: detail?.student.gradeSection ?? form.gradeSection,
+      }),
+    );
+    setCurrentStep(0);
+    setError(null);
+    setSubmittedNow(false);
+  };
+
   const submit = async () => {
     if (submitLockRef.current || isTestLocked) {
       return false;
@@ -275,6 +303,7 @@ export function useStudentDashboard() {
     nextAvailableTestLabel,
     testAvailabilityDetail,
     previousStep,
+    resetAssessmentDraft,
     closeHelpModal,
     openHelpModal,
     submittedNow,

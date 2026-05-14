@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { getCurrentSession, logout } from "@/features/auth/services/auth.service";
+import { subscribeToSessionChanges, type AppSession } from "@/features/auth/services/session.service";
 import { getPendingHelpAlertsCount } from "@/features/psychologist/services/psychologist.service";
 
 export function GlobalNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const session = getCurrentSession();
+  const [session, setSession] = useState<AppSession | null>(() => getCurrentSession());
   const role = session?.user.role;
   const [pendingHelpAlertsCount, setPendingHelpAlertsCount] = useState(0);
+
+  useEffect(() => subscribeToSessionChanges(() => {
+    setSession(getCurrentSession());
+  }), []);
 
   useEffect(() => {
     if (role !== "psicologo") {
@@ -31,7 +36,7 @@ export function GlobalNavbar() {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   useEffect(() => {
@@ -62,7 +67,9 @@ export function GlobalNavbar() {
     }
     if (role === "alumno") {
       return [
-        { to: "/alumno", label: "Mi Panel" },
+        { to: "/alumno?tab=inicio", label: "Inicio", end: true, matchSearch: "tab=inicio" },
+        { to: "/alumno?tab=test", label: "Nuevo Test", matchSearch: "tab=test" },
+        { to: "/alumno?tab=historial", label: "Mi Historial", matchSearch: "tab=historial" },
       ];
     }
     return [];
@@ -86,9 +93,12 @@ export function GlobalNavbar() {
               key={link.to}
               to={link.to}
               end={link.end}
-              className={({ isActive }) =>
-                isActive ? "nav-link nav-link--active" : "nav-link"
-              }
+              className={({ isActive }) => {
+                const matchesSearch = "matchSearch" in link
+                  ? location.pathname === "/alumno" && location.search === `?${link.matchSearch}`
+                  : isActive;
+                return matchesSearch ? "nav-link nav-link--active" : "nav-link";
+              }}
             >
               <span>{link.label}</span>
               {"badge" in link && link.badge && link.badge > 0 ? (

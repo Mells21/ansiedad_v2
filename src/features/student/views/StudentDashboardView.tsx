@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { StudentAssessmentWizard } from "@/features/student/components/StudentAssessmentWizard";
-import { StudentAssessmentSummary } from "@/features/student/components/StudentAssessmentSummary";
 import { StudentHelpRequestModal } from "@/features/student/components/StudentHelpRequestModal";
-import { StudentRecommendations } from "@/features/student/components/StudentRecommendations";
+import { StudentTestHistoryDetailModal } from "@/features/student/components/StudentTestHistoryDetailModal";
 import { TestHistoryPanel } from "@/features/student/components/TestHistoryPanel";
 import { useStudentDashboard } from "@/features/student/controllers/useStudentDashboard";
+import type { StudentHistoryItem } from "@/features/student/models/student-case.model";
 
 export function StudentDashboardView() {
-  const [activeTab, setActiveTab] = useState<"inicio" | "test" | "historial">("inicio");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<StudentHistoryItem | null>(null);
   const {
     currentStep,
     closeHelpModal,
@@ -26,6 +28,7 @@ export function StudentDashboardView() {
     testAvailabilityDetail,
     openHelpModal,
     previousStep,
+    resetAssessmentDraft,
     submittedNow,
     submit,
     submitHelpRequest,
@@ -34,44 +37,36 @@ export function StudentDashboardView() {
     updateHelpRequestField,
   } = useStudentDashboard();
 
+  const requestedTab = searchParams.get("tab");
+  const activeTab: "inicio" | "test" | "historial" =
+    requestedTab === "test" || requestedTab === "historial" ? requestedTab : "inicio";
+
   const latestAssessment = detail?.latestAssessment;
   const latestHelpRequest = detail?.latestHelpRequest;
+
+  useEffect(() => {
+    if (!requestedTab) {
+      setSearchParams({ tab: "inicio" }, { replace: true });
+    }
+  }, [requestedTab, setSearchParams]);
 
   const handleSubmit = async () => {
     const saved = await submit();
 
     if (saved) {
-      setActiveTab("historial");
+      setSearchParams({ tab: "historial" });
     }
+  };
+
+  const openTestTab = () => {
+    if (!isTestLocked) {
+      resetAssessmentDraft();
+    }
+    setSearchParams({ tab: isTestLocked ? "historial" : "test" });
   };
 
   return (
     <section className="page student-page">
-
-      <div className="student-tabs">
-        <button
-          className={activeTab === "inicio" ? "student-tab student-tab--active" : "student-tab"}
-          type="button"
-          onClick={() => setActiveTab("inicio")}
-        >
-          Inicio
-        </button>
-        <button
-          className={activeTab === "test" ? "student-tab student-tab--active" : "student-tab"}
-          type="button"
-          onClick={() => setActiveTab("test")}
-        >
-          {isTestLocked ? "Test bloqueado" : "Nuevo Test"}
-        </button>
-        <button
-          className={activeTab === "historial" ? "student-tab student-tab--active" : "student-tab"}
-          type="button"
-          onClick={() => setActiveTab("historial")}
-        >
-          Mi Historial
-        </button>
-      </div>
-
       {activeTab === "inicio" ? (
         <>
           <div className="student-home-shell">
@@ -116,7 +111,7 @@ export function StudentDashboardView() {
                 <button
                   className="student-link-btn"
                   type="button"
-                  onClick={() => setActiveTab(isTestLocked ? "historial" : "test")}
+                  onClick={openTestTab}
                 >
                   {isTestLocked ? "Ver resumen" : "Realizar test"}
                 </button>
@@ -126,7 +121,11 @@ export function StudentDashboardView() {
                 <div className="student-home-icon student-home-icon--violet">o</div>
                 <h3>Historial</h3>
                 <p>Revisa tus tests anteriores y el estado de revision del psicologo.</p>
-                <button className="student-link-btn" type="button" onClick={() => setActiveTab("historial")}>
+                <button
+                  className="student-link-btn"
+                  type="button"
+                  onClick={() => setSearchParams({ tab: "historial" })}
+                >
                   Ver historial
                 </button>
               </article>
@@ -161,7 +160,7 @@ export function StudentDashboardView() {
             onFieldChange={updateField}
             onNext={nextStep}
             onPrevious={previousStep}
-            onViewHistory={() => setActiveTab("historial")}
+            onViewHistory={() => setSearchParams({ tab: "historial" })}
             onSubmit={handleSubmit}
           />
         </div>
@@ -169,14 +168,11 @@ export function StudentDashboardView() {
 
       {activeTab === "historial" ? (
         <div className="student-history-shell">
-          <StudentAssessmentSummary
-            detail={detail}
-            nextAvailableTestLabel={nextAvailableTestLabel}
-            availabilityDetail={testAvailabilityDetail}
-            submittedNow={submittedNow}
+          <TestHistoryPanel
+            history={detail?.history ?? []}
+            onSelect={setSelectedHistoryItem}
+            selectedAssessmentId={selectedHistoryItem?.assessmentId ?? null}
           />
-          <TestHistoryPanel history={detail?.history ?? []} />
-          <StudentRecommendations detail={detail} />
         </div>
       ) : null}
 
@@ -188,6 +184,13 @@ export function StudentDashboardView() {
           onClose={closeHelpModal}
           onFieldChange={updateHelpRequestField}
           onSubmit={submitHelpRequest}
+        />
+      ) : null}
+
+      {selectedHistoryItem ? (
+        <StudentTestHistoryDetailModal
+          item={selectedHistoryItem}
+          onClose={() => setSelectedHistoryItem(null)}
         />
       ) : null}
     </section>

@@ -126,9 +126,9 @@ export function getHomeRouteForRole(role: UserRole) {
 }
 
 export async function logout() {
+  clearSession();
+
   if (firebaseAuth) {
     await signOut(firebaseAuth).catch(() => undefined);
   }
-
-  clearSession();
 }

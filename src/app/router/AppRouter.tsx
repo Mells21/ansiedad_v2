@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { DashboardLayout } from "@/app/layouts/DashboardLayout";
 import { ProtectedRoute } from "@/app/router/ProtectedRoute";
 import { getCurrentSession, getHomeRouteForRole } from "@/features/auth/services/auth.service";
+import { subscribeToSessionChanges, type AppSession } from "@/features/auth/services/session.service";
 import { LoginView } from "@/features/auth/views/LoginView";
 import { PsychologistDashboardView } from "@/features/psychologist/views/PsychologistDashboardView";
 import { StudentDashboardView } from "@/features/student/views/StudentDashboardView";
@@ -16,8 +18,12 @@ import { TestSchedulerView } from "@/features/psychologist/views/TestSchedulerVi
 import { PsychologistAlertsView } from "@/features/psychologist/views/PsychologistAlertsView";
 
 export function AppRouter() {
-  const session = getCurrentSession();
+  const [session, setSession] = useState<AppSession | null>(() => getCurrentSession());
   const homeRoute = session ? getHomeRouteForRole(session.user.role) : "/login";
+
+  useEffect(() => subscribeToSessionChanges(() => {
+    setSession(getCurrentSession());
+  }), []);
 
   return (
     <Routes>

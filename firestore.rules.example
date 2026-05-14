@@ -46,5 +46,11 @@ service cloud.firestore {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == adminId);
       allow update, create: if isAdmin() || (signedIn() && request.auth.uid == adminId);
     }
+
+    match /config/{configId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() || isPsychologist();
+      allow delete: if false;
+    }
   }
 }
