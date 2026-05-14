@@ -1,4 +1,5 @@
 import type { StudentHelpRequest } from "@/features/student/models/student-case.model";
+import { PanelCard } from "@/shared/components/PanelCard";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 
 interface StudentHelpResponsesPanelProps {
@@ -12,57 +13,71 @@ function getStatusTone(request: StudentHelpRequest) {
 
 function getStatusLabel(request: StudentHelpRequest) {
   if (request.psychologistRecommendation) {
-    return "Respondida";
+    return "Respondida por psicologia";
   }
-  return request.status === "intervenido" ? "Atendida" : "Pendiente";
+  return request.status === "intervenido" ? "Atendida sin nota" : "Pendiente de respuesta";
 }
 
 export function StudentHelpResponsesPanel({ helpRequests, unreadCount }: StudentHelpResponsesPanelProps) {
   return (
-    <section className="card student-help-history-card">
-      <div className="card-head">
-        <div>
-          <h3 className="card-title">Solicitudes de ayuda</h3>
-          <p className="card-subtitle">Revisa tus pedidos de apoyo y las respuestas que te deje psicologia.</p>
-        </div>
+    <PanelCard
+      title="Solicitudes de ayuda"
+      action={
         <span className="student-card-tag">
-          {unreadCount > 0 ? `${unreadCount} nueva${unreadCount === 1 ? "" : "s"}` : `${helpRequests.length} registro${helpRequests.length === 1 ? "" : "s"}`}
+          {unreadCount > 0
+            ? `${unreadCount} nueva${unreadCount === 1 ? "" : "s"}`
+            : `${helpRequests.length} registro${helpRequests.length === 1 ? "" : "s"}`}
         </span>
-      </div>
-
+      }
+      className="student-history-card"
+    >
       {helpRequests.length === 0 ? (
         <div className="student-history-empty">
           <strong>Aun no has enviado solicitudes de ayuda.</strong>
           <span>Cuando pidas apoyo, aqui podras ver el estado y la respuesta del psicologo.</span>
         </div>
       ) : (
-        <div className="student-help-response-list">
-          {helpRequests.map((request) => (
-            <article key={String(request.id)} className="student-help-response-item">
-              <div className="student-help-response-item__top">
-                <div>
-                  <strong>{request.reason}</strong>
-                  <p>
-                    {new Date(request.submittedAt).toLocaleDateString("es-PE")} · urgencia {request.urgency}
-                  </p>
-                </div>
-                <StatusBadge tone={getStatusTone(request)}>{getStatusLabel(request)}</StatusBadge>
-              </div>
+        <div className="student-history-list">
+          {helpRequests.map((request) => {
+            const submittedAt = new Date(request.submittedAt);
 
-              <div className="student-help-response-item__body">
-                <div className="student-help-response-item__block">
-                  <span>Tu mensaje</span>
-                  <p>{request.message.trim() || "Sin mensaje adicional"}</p>
+            return (
+              <article key={String(request.id)} className="student-history-record student-help-response-record">
+                <div className="student-history-date">
+                  <strong>{submittedAt.toLocaleDateString("es-PE", { day: "2-digit" })}</strong>
+                  <span>{submittedAt.toLocaleDateString("es-PE", { month: "short", year: "numeric" })}</span>
                 </div>
-                <div className="student-help-response-item__block">
-                  <span>Respuesta del psicologo</span>
-                  <p>{request.psychologistRecommendation?.trim() || "Aun no hay una respuesta registrada."}</p>
+
+                <div className="student-history-result student-help-response-record__summary">
+                  <StatusBadge tone={getStatusTone(request)}>{getStatusLabel(request)}</StatusBadge>
+                  <span>{request.reason}</span>
                 </div>
-              </div>
-            </article>
-          ))}
+
+                <div className="student-history-metric">
+                  <span>Urgencia</span>
+                  <strong style={{ textTransform: "capitalize" }}>{request.urgency}</strong>
+                </div>
+
+                <div className="student-history-metric student-help-response-record__reply">
+                  <span>Respuesta</span>
+                  <strong>{request.psychologistRecommendation?.trim() ? "Disponible" : "Pendiente"}</strong>
+                </div>
+
+                <div className="student-help-response-record__content">
+                  <div className="student-help-response-record__block">
+                    <span>Tu mensaje</span>
+                    <p>{request.message.trim() || "Sin mensaje adicional"}</p>
+                  </div>
+                  <div className="student-help-response-record__block">
+                    <span>Respuesta del psicologo</span>
+                    <p>{request.psychologistRecommendation?.trim() || "Aun no hay una respuesta registrada."}</p>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
-    </section>
+    </PanelCard>
   );
 }
