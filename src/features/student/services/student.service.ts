@@ -97,10 +97,7 @@ function buildDetail(
     };
   });
 
-  const latestDiagnosis =
-    (latestAssessment ? diagnosisByAssessmentId.get(String(latestAssessment.id)) ?? null : null) ??
-    diagnoses[0] ??
-    null;
+  const latestDiagnosis = latestAssessment ? diagnosisByAssessmentId.get(String(latestAssessment.id)) ?? null : null;
   const recommendations =
     latestDiagnosis?.recommendations.length
       ? [...latestDiagnosis.recommendations]

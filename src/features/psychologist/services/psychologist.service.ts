@@ -157,10 +157,7 @@ async function buildStudentCaseDetail(studentId: string): Promise<StudentCaseDet
   });
 
   const latestAssessment = assessments[0] ?? null;
-  const latestDiagnosis =
-    (latestAssessment ? diagnosisByAssessmentId.get(String(latestAssessment.id)) ?? null : null) ??
-    diagnoses[0] ??
-    null;
+  const latestDiagnosis = latestAssessment ? diagnosisByAssessmentId.get(String(latestAssessment.id)) ?? null : null;
   const history = assessments.map((assessment) => {
     const diagnosis = diagnosisByAssessmentId.get(String(assessment.id));
     return {

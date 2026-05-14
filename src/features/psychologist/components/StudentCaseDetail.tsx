@@ -36,32 +36,6 @@ function RiskBadge({ risk }: { risk: "bajo" | "moderado" | "alto" }) {
   );
 }
 
-function ScoreGauge({ score, risk }: { score: number; risk: "bajo" | "moderado" | "alto" }) {
-  const r = RISK[risk];
-  const pct = Math.min(100, Math.max(0, score));
-  return (
-    <div className="cd-gauge-wrap">
-      <svg width="120" height="120" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth="9" />
-        <circle
-          cx="60" cy="60" r="46"
-          fill="none"
-          stroke={r.color}
-          strokeWidth="9"
-          strokeLinecap="round"
-          strokeDasharray={`${2 * Math.PI * 46}`}
-          strokeDashoffset={`${2 * Math.PI * 46 * (1 - pct / 100)}`}
-          transform="rotate(-90 60 60)"
-          style={{ transition: "stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" }}
-        />
-        <text x="60" y="56" textAnchor="middle" fontSize="24" fontWeight="800" fill={r.color}>{score}</text>
-        <text x="60" y="72" textAnchor="middle" fontSize="10" fill="#94a3b8">/100</text>
-      </svg>
-      <span className="cd-gauge-label" style={{ color: r.color, background: r.bg }}>{r.label}</span>
-    </div>
-  );
-}
-
 function ProbBar({ label, value, color }: { label: string; value: number; color: string }) {
   const pct = Math.round(value * 100);
   return (
@@ -124,7 +98,6 @@ export function StudentCaseDetail({
   const isDiagnosed = Boolean(latestDiagnosis);
   const activeRisk  = latestDiagnosis?.riskLevel ?? latestAssessment?.preliminaryRisk ?? "bajo";
   const activeLabel = latestDiagnosis?.predictedLabel ?? latestAssessment?.preliminaryLabel ?? "--";
-  const score       = latestAssessment?.normalizedScore ?? 0;
   const riskCfg     = RISK[activeRisk];
 
   const canDiagnose =
@@ -186,8 +159,6 @@ export function StudentCaseDetail({
           </div>
         </div>
 
-        {/* Score gauge */}
-        <ScoreGauge score={score} risk={activeRisk} />
       </div>
 
       {/* ══ RESULT BANNER ══════════════════════════════════════════════════ */}
