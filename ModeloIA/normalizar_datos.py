@@ -106,6 +106,6 @@ y = df["ansiedad"]
 
 df_normalizado = pd.concat([X, y], axis=1)
 
-df_normalizado.to_csv("/content/sample_data/dataset_normalizado.csv", index=False)
+df_normalizado.to_csv("dataset_normalizado.csv", index=False)
 
 print("Dataset normalizado guardado 🔥")
