@@ -37,7 +37,6 @@ CLASES_ANSIEDAD = [
 ]
 
 VARIABLES_ENTRADA = [
-    "ansiedad_score",
     "notas",
     "conducta",
     "padres",
