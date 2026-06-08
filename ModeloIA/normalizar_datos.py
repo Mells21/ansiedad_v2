@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Cargar dataset
-df = pd.read_csv("/content/sample_data/dataset_rioja.csv")
+df = pd.read_csv("dataset_rioja.csv")
 
 # -------------------------
 # MAPEOS
