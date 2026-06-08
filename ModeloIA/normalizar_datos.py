@@ -1,10 +1,10 @@
 import pandas as pd
 
 # Cargar dataset
-df = pd.read_csv("dataset_rioja.csv")
+df = pd.read_csv("/content/sample_data/dataset_rioja.csv")
 
 # -------------------------
-# MAPEOS 
+# MAPEOS
 # -------------------------
 
 map_ansiedad = {
@@ -92,7 +92,6 @@ df["estudio"] = df["horas_estudio"].apply(map_estudio)
 # -------------------------
 
 X = df[[
-    "ansiedad_score",
     "notas",
     "conducta",
     "padres",
@@ -107,6 +106,6 @@ y = df["ansiedad"]
 
 df_normalizado = pd.concat([X, y], axis=1)
 
-df_normalizado.to_csv("dataset_normalizado.csv", index=False)
+df_normalizado.to_csv("/content/sample_data/dataset_normalizado.csv", index=False)
 
 print("Dataset normalizado guardado 🔥")
